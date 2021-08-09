@@ -2,6 +2,7 @@ import asyncio
 import shlex
 
 from prompt_toolkit import PromptSession
+from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -18,8 +19,8 @@ class AWShCompleter(Completer):
         except ValueError:
             pass
         else:
-            if len(cmd_line):
-                pass
+            for cmd in cmd_line:
+                yield Completion(cmd, -len(word_before_cursor))
 
 class AWShell:
     def __init__(self, args):
@@ -36,7 +37,6 @@ class AWShell:
         )
 
     async def parse_cmd_line(self, text):
-        # asyncio.sleep(0.5)
         print(text)
 
     async def cmdloop(self):
