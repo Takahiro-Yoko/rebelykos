@@ -44,6 +44,10 @@ class WShell:
             search_ignore_case=True
         )
 
+    # def get_context(self, ctx_name=None):
+    #     try:
+    #         cli_menus = [
+
     async def parse_cmd_line(self, text):
         print(text)
 
