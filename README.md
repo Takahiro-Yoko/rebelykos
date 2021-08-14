@@ -1,8 +1,8 @@
-# rebelawolf
-rebelawolf is a tool I've made to learn programming and make some experiments with AWS security.
+# rebelykos
+rebelykos is a tool I've made to learn programming and make some experiments with AWS security.
 
 # Notes
-rebelawolf is currently supported in Linux.
+rebelykos is currently supported in Linux.
 
 # Involuntary Contributors
 [SILENTTRINITY](https://github.com/byt3bl33d3r/SILENTTRINITY)<br />
