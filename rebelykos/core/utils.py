@@ -3,6 +3,8 @@ import os
 import random
 import string
 
+import rebelykos
+
 class CmdError(Exception):
     def __init__(self, msg):
         logging.error(msg)
@@ -17,3 +19,6 @@ def get_data_folder():
 
 def get_path_in_data_folder(path):
     return os.path.join(get_data_folder(), path.lstrip("/"))
+
+def get_path_in_package(path):
+    return os.path.join(os.path.dirname(rebelykos.__file__), path.lstrip("/"))
