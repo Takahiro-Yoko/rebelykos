@@ -45,7 +45,7 @@ async def server(stop, args, ts_digest):
         logging.info("Creating database")
         # await AsyncRLDatabase.create_db_and_schema()
 
-    # ts = TeamServer()
+    ts = TeamServer()
 
     ssl_context = None
     # if not args["--insecure"]:
