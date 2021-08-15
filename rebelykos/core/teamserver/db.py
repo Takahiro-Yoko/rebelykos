@@ -22,3 +22,25 @@ class AsyncRLDatabase:
                 "region" text,
                 UNIQUE(profile)
             )''')
+
+    async def add_profile(self, profile, access_key_id,
+                          secret_access_key, region):
+        await self.db.execute("INSERT INTO profiles (profile, "
+                              "access_key_id, secret_access_key, region) "
+                              "VALUES (?,?,?,?)",
+                              [profile, access_key_id,
+                               secret_access_key, region])
+
+    async def get_profiles(self):
+        async with self.db.execute("SELECT * FROM profiles") as cursor:
+            async for pro in cursor.fetchall():
+                yield pro
+            # return cursor.fetchall()
+
+    async def __aenter__(self):
+        self.db = await aiosqlite.connect(self.db_path)
+        return self
+
+    async def __aexit__(self, exec_type, exc, tb):
+        await self.db.commit()
+        await self.db.close()
