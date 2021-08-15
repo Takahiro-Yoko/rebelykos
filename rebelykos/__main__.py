@@ -9,6 +9,7 @@ options:
 """
 
 from docopt import docopt
+
 from rebelykos import VERSION
 
 
