@@ -8,5 +8,5 @@ rebelykos is currently supported in Linux.
 [SILENTTRINITY](https://github.com/byt3bl33d3r/SILENTTRINITY)<br />
 [Pacu](https://github.com/RhinoSecurityLabs/pacu)<br />
 [Sparc Flow](https://github.com/HackLikeAPornstar)<br />
-Yushi Sato for teaching me coding.
+Yushi Sato for teaching me coding.<br />
 [AWS pwn](https://github.com/dagrz/aws_pwn)
