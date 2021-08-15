@@ -3,7 +3,7 @@ import logging
 from typing import List
 
 from rebelykos.core.client.connection import ClientConnection
-from rebelykos.core.client.utils import command, register_cli_cmds
+from rebelykos.core.client.utils import cmd, register_cli_cmds
 
 
 @register_cli_cmds

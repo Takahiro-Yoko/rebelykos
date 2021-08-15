@@ -14,10 +14,10 @@ options:
 import logging
 import asyncio
 
-from rebelykos.core.client.cmdloop import WShell
+from rebelykos.core.client.cmdloop import RLShell
 
 async def main(args):
-    s = WShell(args)
+    s = RLShell(args)
     await s.cmdloop()
 
 def start(args):

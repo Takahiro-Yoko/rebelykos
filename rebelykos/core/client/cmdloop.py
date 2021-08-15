@@ -8,9 +8,10 @@ from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.formatted_text import HTML
 
+from rebelykos.core.client.contexts.teamservers import TeamServers
 from rebelykos.core.client.utils import register_cli_cmds
 
-class WShCompleter(Completer):
+class RLCompleter(Completer):
     def __init__(self, cli_menu):
         self.cli_menu = cli_menu
 
@@ -26,7 +27,7 @@ class WShCompleter(Completer):
                 yield Completion(cmd, -len(word_before_cursor))
 
 @register_cli_cmds
-class WShell:
+class RLShell:
     name = "main"
     description = "Main menu"
     _remote = False
@@ -34,9 +35,10 @@ class WShell:
     def __init__(self, args):
         self.args = args
         self.current_context = self
-        self.completer = WShCompleter(self)
+        self.teamservers = TeamServers(args['<URL>'])
+        self.completer = RLCompleter(self)
         self.prompt_session = PromptSession(
-            HTML("WSh >> "),
+            HTML("RL >> "),
             completer=self.completer,
             complete_in_thread=True,
             complete_while_typing=True,
