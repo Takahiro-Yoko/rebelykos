@@ -16,6 +16,7 @@ import os
 from hashlib import sha512
 import signal
 
+from rebelykos.core.teamserver.db import AsyncRLDatabase
 # from rebelykos.core.teamserver.users import Users
 from rebelykos.core.teamserver.contexts import (
     # Listeners,
@@ -43,7 +44,7 @@ class TeamServer:
 async def server(stop, args, ts_digest):
     if not os.path.exists(get_path_in_data_folder("rl.db")):
         logging.info("Creating database")
-        # await AsyncRLDatabase.create_db_and_schema()
+        await AsyncRLDatabase.create_db_and_schema()
 
     ts = TeamServer()
 
