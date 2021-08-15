@@ -60,8 +60,17 @@ async def server(stop, args, ts_digest):
     #         get_path_in_data_folder("cert.pem")
     #     )
     #     # logging.warning(
+    # async with websockets.serve(
+    #     ts.connection_handler,
+    #     host=args["<host>"],
+    #     port=int(args["--port"]),
+    #     create_protocol=RLWebSocketServerProtocol,
+    #     ssl=ssl_context,
+    #     ping_interval=None,
+    #     ping_timeout=None
+    # ):
 
-    #     await stop
+    await stop
 
 def start(args):
     if not os.path.exists(get_data_folder()):
