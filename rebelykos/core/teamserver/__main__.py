@@ -10,11 +10,15 @@ optional arguments:
 """
 
 import asyncio
+from termcolor import colored
 import hmac
+import http
 import logging
 import os
 from hashlib import sha512
 import signal
+import websockets
+from websockets import WebSocketServerProtocol
 
 from rebelykos.core.teamserver.db import AsyncRLDatabase
 # from rebelykos.core.teamserver.users import Users
@@ -26,7 +30,8 @@ from rebelykos.core.teamserver.contexts import (
 )
 from rebelykos.core.utils import (
     get_data_folder,
-    get_path_in_data_folder
+    get_path_in_data_folder,
+    decode_auth_header
 )
 
 class TeamServer:
@@ -40,6 +45,34 @@ class TeamServer:
             # 'stagers': Stagers(self),
             # 'users': self.users
         }
+
+    async def connection_handler(self, websocket, path):
+        # try:
+        #     user = await self.
+        while True:
+            try:
+                data = await asyncio.wait_for(websocket.recv(), timeout=20)
+            except asyncio.TimeoutError:
+                logging.debug(f"No data")
+            else:
+                pass
+                # await self.process_client_msg(
+
+class RLWebSocketServerProtocol(WebSocketServerProtocol):
+    ts_digest = None
+
+    async def process_request(self, path, req_headers):
+        try:
+            username, password_digest = decode_auth_header(req_headers)
+            if not hmac.compare_digest(password_digest,
+                                       RLWebSocketServerProtocol.ts_digest):
+                logging.error(f"User {username} failed authentication")
+                return http.HTTPStatus.UNAUTHORIZED, [], b"UNAUTHORIZED\n"
+        except KeyError:
+            logging.error("Received handshake with no authorization header")
+            return htttp.HTTPStatus.FORBIDDEN, [], b"FORBIDDEN\n"
+
+        logging.info(f"User {username} authenticated successfully")
 
 async def server(stop, args, ts_digest):
     if not os.path.exists(get_path_in_data_folder("rl.db")):
@@ -65,18 +98,21 @@ async def server(stop, args, ts_digest):
     #     sever_cert_fingerprint = get_cert_fingerprint(
     #         get_path_in_data_folder("cert.pem")
     #     )
-    #     # logging.warning(
-    # async with websockets.serve(
-    #     ts.connection_handler,
-    #     host=args["<host>"],
-    #     port=int(args["--port"]),
-    #     create_protocol=RLWebSocketServerProtocol,
-    #     ssl=ssl_context,
-    #     ping_interval=None,
-    #     ping_timeout=None
-    # ):
+    #     logging.warning()
+    RLWebSocketServerProtocol.ts_digest = ts_digest
+    async with websockets.serve(
+        ts.connection_handler,
+        host=args["<host>"],
+        port=int(args["--port"]),
+        create_protocol=RLWebSocketServerProtocol,
+        ssl=ssl_context,
+        ping_interval=None,
+        ping_timeout=None
+    ):
 
-    await stop
+        logging.info(colored(f"Teamserver started on {args['<host>']}:"
+                             f"{args['--port']}", "yellow"))
+        await stop
 
 def start(args):
     if not os.path.exists(get_data_folder()):

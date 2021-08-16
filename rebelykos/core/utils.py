@@ -22,3 +22,9 @@ def get_path_in_data_folder(path):
 
 def get_path_in_package(path):
     return os.path.join(os.path.dirname(rebelykos.__file__), path.lstrip("/"))
+
+def decode_auth_header(req_headers):
+    auth_header = req_headers["Authorization"]
+    auth_header = b64decode(auth_header)
+    username, password_digest = auth_header.decode().split(":")
+    return username, password_digest
