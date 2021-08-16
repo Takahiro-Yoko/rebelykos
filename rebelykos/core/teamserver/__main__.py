@@ -47,15 +47,9 @@ async def server(stop, args, ts_digest):
         await AsyncRLDatabase.create_db_and_schema()
 
     # test
-    # db = AsyncRLDatabase()
-    # async with db:
-    #     # await db.add_profile("profile", "key", "secret", "ap-northeast")
-    #     for pro in db.get_profiles():
-    #         print(pro)
-        # for pro in pros:
-        #     print(pro)
-    # for profile in db.get_profiles():
-    #     print(profile)
+    # async with AsyncRLDatabase() as db:
+    #     async for row in db.get_profiles():
+    #         print(row)
 
     ts = TeamServer()
 

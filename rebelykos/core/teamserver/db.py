@@ -33,9 +33,8 @@ class AsyncRLDatabase:
 
     async def get_profiles(self):
         async with self.db.execute("SELECT * FROM profiles") as cursor:
-            async for pro in cursor.fetchall():
-                yield pro
-            # return cursor.fetchall()
+            async for row in cursor:
+                yield row
 
     async def __aenter__(self):
         self.db = await aiosqlite.connect(self.db_path)
