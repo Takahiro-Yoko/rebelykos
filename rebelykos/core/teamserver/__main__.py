@@ -20,8 +20,9 @@ import signal
 import websockets
 from websockets import WebSocketServerProtocol
 
+from rebelykos.core.events import Events
 from rebelykos.core.teamserver.db import AsyncRLDatabase
-# from rebelykos.core.teamserver.users import Users
+from rebelykos.core.teamserver.users import Users, UsernameAlreadyPresentError
 from rebelykos.core.teamserver.contexts import (
     # Listeners,
     # Sessions,
@@ -31,12 +32,14 @@ from rebelykos.core.teamserver.contexts import (
 from rebelykos.core.utils import (
     get_data_folder,
     get_path_in_data_folder,
-    decode_auth_header
+    decode_auth_header,
+    CmdError,
+    get_ips
 )
 
 class TeamServer:
     def __init__(self):
-        # self.users = Users()
+        self.users = Users()
         self.loop = asyncio.get_running_loop()
         self.contexts = {
             # 'listeners': Listeners(self),
@@ -46,17 +49,72 @@ class TeamServer:
             # 'users': self.users
         }
 
+    async def process_client_msg(self, user, path, data):
+        msg = json.loads(data)
+        logging.debug(f"Received message from {user.name}@{user.ip} "
+                      f"path:{path} msg: {msg}")
+        status = "error"
+
+        try:
+            ctx = self.contexts[msg["ctx"].lower()]
+        except KeyError:
+            traceback.print_exc()
+            result = f"Context '{msg['ctx'].lower()}' does not exist"
+            logging.error(result)
+        else:
+            try:
+                cmd_handler = getattr(ctx, msg["cmd"])
+                result = cmd_handler(**msg["args"])
+                status = "success"
+            except AttributeError:
+                traceback.print_exc()
+                result = (f"Command '{msg['cmd']}' does not exist in context "
+                          f" '{msg['ctx'].lower()}'")
+            except CmdError as e:
+                result = str(e)
+            except Exception as e:
+                traceback.print_exc()
+                result = (f"Exception when executing command '{msg['cmd']}': "
+                          f"{e}")
+                logging.error(result)
+
+        await user.send({
+            "type": "message",
+            "id": msg["id"],
+            "ctx": msg["ctx"],
+            "name": msg["cmd"],
+            "status": status,
+            "result": result
+        })
+
+    async def update_server_stats(self):
+        stats = {**{str(ctx): dict(ctx) for ctx in self.contexts.values()},
+                 "ips": get_ips()}
+        await self.users.broadcast_event(Events.STATS_UPDATE, stats)
+
+    async def update_available_loadables(self):
+        loadables = {str(ctx): [loadable.name for loadable in ctx.loaded]
+                     for ctx in self.contexts.values()
+                     if hasattr(ctx, "loaded")}
+        await self.users.broadcast_event(Events.LOADABLES_UPDATE, loadables)
+
     async def connection_handler(self, websocket, path):
-        # try:
-        #     user = await self.
+        try:
+            user = await self.users.register(websocket)
+            await self.update_server_stats()
+            await self.update_available_loadables()
+            logging.info(f"New client connected {user.name}@{user.ip}")
+        except UsernameAlreadyPresentError as e:
+            logging.error(f"{websocket.remote_address[0]}: {e}")
+            return
+
         while True:
             try:
                 data = await asyncio.wait_for(websocket.recv(), timeout=20)
             except asyncio.TimeoutError:
                 logging.debug(f"No data")
             else:
-                pass
-                # await self.process_client_msg(
+                await self.process_client_msg(user, path, data)
 
 class RLWebSocketServerProtocol(WebSocketServerProtocol):
     ts_digest = None
@@ -86,7 +144,7 @@ async def server(stop, args, ts_digest):
 
     ts = TeamServer()
 
-    ssl_context = None
+    # ssl_context = None
     # if not args["--insecure"]:
     #     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     #     try:
@@ -105,7 +163,7 @@ async def server(stop, args, ts_digest):
         host=args["<host>"],
         port=int(args["--port"]),
         create_protocol=RLWebSocketServerProtocol,
-        ssl=ssl_context,
+        # ssl=ssl_context,
         ping_interval=None,
         ping_timeout=None
     ):

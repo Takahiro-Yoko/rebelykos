@@ -28,3 +28,16 @@ def decode_auth_header(req_headers):
     auth_header = b64decode(auth_header)
     username, password_digest = auth_header.decode().split(":")
     return username, password_digest
+
+def get_ips():
+    ips = []
+    for iface in netifaces.interfaces():
+        try:
+            netif = netifaces.ifaddresses(iface)
+            if netif[netifaces.AF_INET][0]["addr"] == "127.0.0.1":
+                continue
+            ips.append(netif[netifaces.AF_INET][0]["addr"])
+        except (ValueError, KeyError):
+            continue
+
+    return ips
