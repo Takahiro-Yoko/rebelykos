@@ -1,6 +1,8 @@
 import asyncio
+import logging
 import shlex
 
+from docopt import docopt, DocoptExit
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.patch_stdout import patch_stdout
@@ -46,12 +48,84 @@ class RLShell:
             search_ignore_case=True
         )
 
-    # def get_context(self, ctx_name=None):
-    #     try:
-    #         cli_menus = [
+    def get_context(self, ctx_name=None):
+        try:
+            cli_menus = [*self.teamservers.selected.contexts, self.teamservers]
+        except AttributeError:
+            cli_menus = [self.teamservers]
+
+        if ctx_name:
+            return [c for c in cli_menus if c.name == ctx_name][0]
+        return cli_menus
+
+    async def switched_context(self, text):
+        for ctx in self.get_context():
+            if text.lower() == ctx.name:
+                if ctx._remote is True:
+                    try:
+                        res = await self.teamservers.send(ctx=ctx.name,
+                                                          cmd="get_selected")
+                        if res.result:
+                            ctx.selected = res.result
+                    except AttributeError:
+                        break
+
+                # await self.update_prompt(ctx)
+                self.current_context = ctx
+                return True
+        return False
 
     async def parse_cmd_line(self, text):
-        print(text)
+        if not await self.switched_context(text):
+            try:
+                cmd = shlex.split(text)
+                logging.debug(f"command: {cmd[0]} args: {cmd[1:]} "
+                              f"ctx: {self.current_context.name}")
+                args = docopt(
+                    getattr(
+                        self.current_context
+                        if hasattr(self.current_context, cmd[0]) else self,
+                        cmd[0]
+                    ).__doc__,
+                    argv=cmd[1:]
+                )
+            except ValueError as e:
+                print(f"Error parsing command: {e}")
+            except AttributeError as e:
+                print(f"Unknown command '{cmd[0]}'")
+            except (DocoptExit, SystemExit):
+                pass
+            else:
+                if cmd[0] in self._cmd_registry or \
+                        self.current_context._remote is False:
+                    run_in_terminal(
+                        functools.partial(
+                            getattr(self if cmd[0] in self._cmd_registry
+                                    else self.current_context,
+                                    cmd[0]),
+                            args=args
+                        )
+                    )
+                elif self.current_context._remote is True:
+                    res = await self.teamservers.send(
+                        ctx=self.current_context.name,
+                        cmd=cmd[0],
+                        args=args
+                    )
+                    logging.debug(f"response: {res}")
+                    if res.status == "success" and res.result:
+                        if hasattr(self.current_context, cmd[0]):
+                            run_in_terminal(
+                                functools.partial(
+                                    getattr(self.current_context, cmd[0]),
+                                    args=args,
+                                    response=res
+                                )
+                            )
+                    elif res.status == "error":
+                        print(res.result)
+                # if self.current_context.name != "main":
+                #     await self.update_prompt(self.current_context)
 
     async def cmdloop(self):
         while True:

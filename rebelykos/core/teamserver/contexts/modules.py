@@ -15,3 +15,6 @@ class Modules(Loader):
             type="module",
             paths=[get_path_in_package("core/teamserver/modules/python")]
         )
+
+    def __iter__(self):
+        yield ("loaded", len(self.loaded))

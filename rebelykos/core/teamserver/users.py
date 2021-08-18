@@ -58,7 +58,7 @@ class Users:
                 self.users.remove(user)
 
     async def register(self, websocket):
-        name, _ = decode_auth_header(websocket.req_headers)
+        name, _ = decode_auth_header(websocket.request_headers)
         if [user for user in self.users if user.name == name]:
             raise UsernameAlreadyPresentError(f"User with username '{name}'"
                                               "already exists")

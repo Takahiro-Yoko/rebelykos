@@ -17,10 +17,12 @@ import logging
 import os
 from hashlib import sha512
 import signal
+import ssl
 import websockets
 from websockets import WebSocketServerProtocol
 
 from rebelykos.core.events import Events
+from rebelykos.core.utils import create_self_signed_cert
 from rebelykos.core.teamserver.db import AsyncRLDatabase
 from rebelykos.core.teamserver.users import Users, UsernameAlreadyPresentError
 from rebelykos.core.teamserver.contexts import (
@@ -144,26 +146,27 @@ async def server(stop, args, ts_digest):
 
     ts = TeamServer()
 
-    # ssl_context = None
-    # if not args["--insecure"]:
-    #     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    #     try:
-    #         ssl_context.load_cert_chain(get_path_in_data_folder("chain.pem"))
-    #     except FileNotFoundError:
-    #         create_self_signed_cert()
-    #         ssl_context.load_cert_chain(get_path_in_data_folder("chain.pem"))
+    ssl_context = None
+    if not args["--insecure"]:
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        try:
+            ssl_context.load_cert_chain(get_path_in_data_folder("chain.pem"))
+        except FileNotFoundError:
+            create_self_signed_cert()
+            ssl_context.load_cert_chain(get_path_in_data_folder("chain.pem"))
 
-    #     sever_cert_fingerprint = get_cert_fingerprint(
-    #         get_path_in_data_folder("cert.pem")
-    #     )
-    #     logging.warning()
+        # server_cert_fingerprint = get_cert_fingerprint(
+        #     get_path_in_data_folder("cert.pem")
+        # )
+        # logging.warning()
+
     RLWebSocketServerProtocol.ts_digest = ts_digest
     async with websockets.serve(
         ts.connection_handler,
         host=args["<host>"],
         port=int(args["--port"]),
         create_protocol=RLWebSocketServerProtocol,
-        # ssl=ssl_context,
+        ssl=ssl_context,
         ping_interval=None,
         ping_timeout=None
     ):
