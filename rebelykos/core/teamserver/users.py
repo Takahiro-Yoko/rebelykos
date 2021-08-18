@@ -1,3 +1,11 @@
+import asyncio
+import json
+import logging
+
+from rebelykos.core.events import Events
+from rebelykos.core.utils import decode_auth_header
+
+
 class User:
     def __init__(self, name, websocket):
         self.name = name
