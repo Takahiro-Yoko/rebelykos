@@ -114,7 +114,22 @@ class TeamServer:
             try:
                 data = await asyncio.wait_for(websocket.recv(), timeout=20)
             except asyncio.TimeoutError:
-                logging.debug(f"No data")
+                logging.debug(f"No data from {user.name}@{user.ip}"
+                              " after 20 seconds, sending ping")
+                try:
+                    pong_waiter = await websocket.ping()
+                    await asyncio.wait_for(pong_waiter, timeout=10)
+                except asyncio.TimeoutError:
+                    logging.debug(f"No pong from {user.name}@{user.ip} "
+                                  "after 10 seconds, closing connection")
+                    self.users.unregister(user.name)
+                    await self.update_server_stats()
+                    return 
+            except websockets.exceptions.ConnectionClosed:
+                logging.debug(f"Connection closed by client")
+                self.users.unregister(user.name)
+                await self.update_server_stats()
+                return
             else:
                 await self.process_client_msg(user, path, data)
 

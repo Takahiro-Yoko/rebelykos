@@ -72,6 +72,11 @@ class ClientConnection:
         self.task = asyncio.create_task(self.connect())
         self.task.add_done_callback(connect_callback)
 
+    def stop(self):
+        logging.debug(f"Cancelling connection task for "
+                      f"{self.url.hostname}:{self.url.port}")
+        self.task.cancel()
+
     async def connect(self):
         url = f"{self.url.scheme}://{self.url.hostname}:{self.url.port}"
         logging.debug(f"Connecting to {url}")
