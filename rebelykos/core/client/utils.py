@@ -33,11 +33,14 @@ def cmd(func):
         return func(args[0], **validated_args, response=kwargs["response"]) \
             if args[0].__class__._remote is True else func(args[0],
                                                            **validated_args)
+    return wrapper
 
 def register_cli_cmds(cls):
-    cls._cmd_registry = []
-    for meth_name in dir(cls):
-        meth = getattr(cls, meth_name)
-        if hasattr(meth, "_cmd"):
-            cls._cmd_registry.append(meth)
+    cls._cmd_registry = [meth_name for meth_name in dir(cls)
+                         if hasattr(getattr(cls, meth_name), "_cmd")]
+    # cls._cmd_registry = []
+    # for meth_name in dir(cls):
+    #     meth = getattr(cls, meth_name)
+    #     if hasattr(meth, "_cmd"):
+    #         cls._cmd_registry.append(meth)
     return cls

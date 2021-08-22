@@ -1,4 +1,5 @@
 import asyncio
+import functools
 import logging
 import shlex
 
@@ -9,9 +10,10 @@ from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.formatted_text import HTML
+from terminaltables import SingleTable
 
 from rebelykos.core.client.contexts.teamservers import TeamServers
-from rebelykos.core.client.utils import register_cli_cmds
+from rebelykos.core.client.utils import cmd, register_cli_cmds
 
 class RLCompleter(Completer):
     def __init__(self, cli_menu):
@@ -83,8 +85,8 @@ class RLShell:
                               f"ctx: {self.current_context.name}")
                 args = docopt(
                     getattr(
-                        self.current_context
-                        if hasattr(self.current_context, cmd[0]) else self,
+                        self.current_context if hasattr(self.current_context,
+                                                        cmd[0]) else self,
                         cmd[0]
                     ).__doc__,
                     argv=cmd[1:]
@@ -136,3 +138,32 @@ class RLShell:
                         break
 
                     await self.parse_cmd_line(text)
+
+    @cmd
+    def help(self):
+        """
+        Shows available commands
+
+        Usage: help
+        """
+        table_data = [["Command", "Description"]]
+
+        try:
+            for cmd in self.current_context._cmd_registry:
+                print(cmd)
+                table_data.append([
+                    cmd,
+                    getattr(
+                        self.current_context,
+                        cmd
+                    ).__doc__.split("\n", 2)[1].strip()
+                ])
+            for menu in self.get_context():
+                if menu.name != self.current_context.name:
+                    table_data.append([menu.name, menu.description])
+        except AttributeError:
+            for menu in self.get_context():
+                table_data.append([menu.name, menu.description])
+
+        table = SingleTable(table_data)
+        print(table.table)

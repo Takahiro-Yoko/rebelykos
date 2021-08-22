@@ -42,7 +42,7 @@ from rebelykos.core.utils import (
 class TeamServer:
     def __init__(self):
         self.users = Users()
-        self.loop = asyncio.get_running_loop()
+        # self.loop = asyncio.get_running_loop()
         self.contexts = {
             # 'listeners': Listeners(self),
             # 'sessions': Sessions(self),
@@ -198,8 +198,6 @@ def start(args):
         os.mkdir(get_path_in_data_folder("logs"))
     
     loop = asyncio.get_event_loop()
-    ts_digest = hmac.new(args["<password>"].encode(), msg=b"rebelykos",
-                         digestmod=sha512).hexdigest()
     stop = asyncio.Future()
     for sig in (signal.SIGINT, signal.SIGTERM):
         loop.add_signal_handler(sig, stop.set_result, None)
@@ -209,4 +207,6 @@ def start(args):
                         "communication between client and server "
                         "will be in cleartext!")
 
+    ts_digest = hmac.new(args["<password>"].encode(), msg=b"rebelykos",
+                         digestmod=sha512).hexdigest()
     loop.run_until_complete(server(stop, args, ts_digest))
