@@ -150,7 +150,6 @@ class RLShell:
 
         try:
             for cmd in self.current_context._cmd_registry:
-                print(cmd)
                 table_data.append([
                     cmd,
                     getattr(

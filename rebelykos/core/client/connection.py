@@ -16,10 +16,10 @@ from prompt_toolkit.application import run_in_terminal
 from rebelykos.core.utils import gen_random_string
 from rebelykos.core.client.stats import ClientConnectionStats
 from rebelykos.core.client.event_handlers import ClientEventHandlers
-from rebelykos.core.client.contexts.listeners import Listeners
-from rebelykos.core.client.contexts.sessions import Sessions
+# from rebelykos.core.client.contexts.listeners import Listeners
+# from rebelykos.core.client.contexts.sessions import Sessions
 from rebelykos.core.client.contexts.modules import Modules
-from rebelykos.core.client.contexts.stagers import Stagers
+# from rebelykos.core.client.contexts.stagers import Stagers
 
 
 class ClientConnection:
@@ -29,10 +29,12 @@ class ClientConnection:
         self.stats = ClientConnectionStats()
         self.event_handlers = ClientEventHandlers(self)
         self.msg_queue = asyncio.Queue(maxsize=1)
-        self.contexts = [Listeners(),
-                         Sessions(),
-                         Modules(),
-                         Stagers()]
+        self.contexts = [
+            # Listeners(),
+            # Sessions(),
+            Modules(),
+            # Stagers()
+        ]
         self.task = None
         self.ws = None
         self.ssl_context = None
