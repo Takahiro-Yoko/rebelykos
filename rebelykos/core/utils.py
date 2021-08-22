@@ -1,4 +1,5 @@
 from base64 import b64decode
+from termcolor import colored
 import datetime
 import logging
 import netifaces
@@ -101,3 +102,12 @@ def create_self_signed_cert(
 
     logging.info(f"Self-signed certificate written to {key_file}, {cert_file}"
                  f" and {chain_file}")
+
+def print_good(msg):
+    print(f"{colored('[+]', 'green')} {msg}")
+
+def print_bad(msg):
+    print(f"{colored('[-]', 'red')} {msg}")
+
+def print_info(msg):
+    print(f"{colored('[*]', 'blue')} {msg}")
