@@ -10,6 +10,9 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
+logging.getLogger("websockets.server").setLevel(logging.ERROR)
+logging.getLogger("websockets.protocol").setLevel(logging.ERROR)
+
 multiprocessing.set_start_method("fork")
 
 ipc_server = IPCServer()

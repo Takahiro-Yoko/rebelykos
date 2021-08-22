@@ -2,6 +2,7 @@ import asyncio
 import functools
 import logging
 import shlex
+import shutil
 
 from docopt import docopt, DocoptExit
 from prompt_toolkit import PromptSession
@@ -14,6 +15,19 @@ from terminaltables import SingleTable
 
 from rebelykos.core.client.contexts.teamservers import TeamServers
 from rebelykos.core.client.utils import cmd, register_cli_cmds
+
+
+def bottom_toolbar(ts):
+    if ts.selected and ts.selected.stats.CONNECTED:
+        ts = ts.selected
+        terminal_width, _ = shutil.get_terminal_size()
+        info_bar1 = (f"{ts.alias} - {ts.url.scheme}://{ts.url.username}"
+                     f"@{ts.url.hostname}:{ts.url.port}")
+        info_bar2 = (f"[Users: {len(ts.stats.USERS)}]")
+        ljustify_amount = terminal_width - len(info_bar2)
+        return HTML(f"{info_bar1:<{ljustify_amount}}{info_bar2}")
+    else:
+        return HTML('<b><style bg="ansired">Disconnected</style></b>')
 
 class RLCompleter(Completer):
     def __init__(self, cli_menu):
@@ -44,6 +58,8 @@ class RLShell:
         self.prompt_session = PromptSession(
             HTML(f"[<ansiyellow>{len(self.teamservers.connections)}"
                  "</ansiyellow>] RL >> "),
+            bottom_toolbar=functools.partial(bottom_toolbar,
+                                             ts=self.teamservers),
             completer=self.completer,
             complete_in_thread=True,
             complete_while_typing=True,
