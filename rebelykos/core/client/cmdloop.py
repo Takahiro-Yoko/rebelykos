@@ -60,6 +60,14 @@ class RLShell:
             return [c for c in cli_menus if c.name == ctx_name][0]
         return cli_menus
 
+    async def update_prompt(self, ctx):
+        self.prompt_session.message = HTML(
+            ("[<ansiyellow>"
+             f"{len(self.teamservers.connections)}"
+             f"</ansiyellow>] RL (<ansired>{ctx.name}</ansired>)"
+             f"{' >> ' if not ctx.prompt else ctx.prompt + ' >> ' }")
+        )
+
     async def switched_context(self, text):
         for ctx in self.get_context():
             if text.lower() == ctx.name:
@@ -72,7 +80,7 @@ class RLShell:
                     except AttributeError:
                         break
 
-                # await self.update_prompt(ctx)
+                await self.update_prompt(ctx)
                 self.current_context = ctx
                 return True
         return False
@@ -126,8 +134,8 @@ class RLShell:
                             )
                     elif res.status == "error":
                         print(res.result)
-                # if self.current_context.name != "main":
-                #     await self.update_prompt(self.current_context)
+                if self.current_context.name != "main":
+                    await self.update_prompt(self.current_context)
 
     async def cmdloop(self):
         while True:
