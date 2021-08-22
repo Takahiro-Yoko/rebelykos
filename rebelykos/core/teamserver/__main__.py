@@ -49,7 +49,7 @@ class TeamServer:
             # 'sessions': Sessions(self),
             'modules': Modules(self),
             # 'stagers': Stagers(self),
-            # 'users': self.users
+            'users': self.users
         }
 
     async def process_client_msg(self, user, path, data):

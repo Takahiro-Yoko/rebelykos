@@ -9,7 +9,7 @@ class ClientEventHandlers:
         logging.debug(f"in stats_update event handler, got: {data}")
         # self.connection.stats.LISTENERS = data["listeners"]
         # self.connection.stats.SESSIONS = data["sessions"]
-        # self.connection.stats.USERS = data["users"]
+        self.connection.stats.USERS = data["users"]
         # self.connection.stats.IPS = data["ips"]
 
     def loadables_update(self, data):
