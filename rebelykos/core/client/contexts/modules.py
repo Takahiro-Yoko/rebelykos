@@ -8,7 +8,7 @@ class Modules:
     _remote = True
 
     def __init__(self):
-        self.propmt = None
+        self.prompt = None
         self.available = []
         self._selected = None
 

@@ -20,6 +20,7 @@ from rebelykos.core.client.event_handlers import ClientEventHandlers
 # from rebelykos.core.client.contexts.sessions import Sessions
 from rebelykos.core.client.contexts.modules import Modules
 # from rebelykos.core.client.contexts.stagers import Stagers
+from rebelykos.core.client.server_response import ServerResponse
 
 
 class ClientConnection:
@@ -152,3 +153,10 @@ class ClientConnection:
 
         self.stats.CONNECTED = False
         logging.debug("heartbeat has stopped")
+
+    async def send(self, msg):
+        await self.ws.send(json.dumps(msg))
+        while True:
+            recv_msg = await self.msg_queue.get()
+            self.msg_queue.task_done()
+            return ServerResponse(recv_msg, self)
