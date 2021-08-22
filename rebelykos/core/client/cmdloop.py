@@ -42,7 +42,8 @@ class RLShell:
         self.teamservers = TeamServers(args['<URL>'])
         self.completer = RLCompleter(self)
         self.prompt_session = PromptSession(
-            HTML("RL >> "),
+            HTML(f"[<ansiyellow>{len(self.teamservers.connections)}"
+                 "</ansiyellow>] RL >> "),
             completer=self.completer,
             complete_in_thread=True,
             complete_while_typing=True,
