@@ -19,6 +19,7 @@ import os
 from hashlib import sha512
 import signal
 import ssl
+import traceback
 import websockets
 from websockets import WebSocketServerProtocol
 
@@ -30,6 +31,7 @@ from rebelykos.core.teamserver.contexts import (
     # Listeners,
     # Sessions,
     Modules,
+    Profiles,
     # Stagers
 )
 from rebelykos.core.utils import (
@@ -48,6 +50,7 @@ class TeamServer:
             # 'listeners': Listeners(self),
             # 'sessions': Sessions(self),
             'modules': Modules(self),
+            "profiles": Profiles(self),
             # 'stagers': Stagers(self),
             'users': self.users
         }

@@ -27,9 +27,9 @@ class TeamServers:
             for k, v in args.items():
                 if k in ["-h", "--help"]:
                     continue
-                elif k.statswith("<"):
+                elif k.startswith("<"):
                     normalized_args[k[1:-1]] = v
-                elif k.statswith("--"):
+                elif k.startswith("--"):
                     normalized_args[k[2:]] = v
 
             msg = {"id": gen_random_string(),

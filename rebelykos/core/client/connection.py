@@ -19,6 +19,7 @@ from rebelykos.core.client.event_handlers import ClientEventHandlers
 # from rebelykos.core.client.contexts.listeners import Listeners
 # from rebelykos.core.client.contexts.sessions import Sessions
 from rebelykos.core.client.contexts.modules import Modules
+from rebelykos.core.client.contexts.profiles import Profiles
 # from rebelykos.core.client.contexts.stagers import Stagers
 from rebelykos.core.client.server_response import ServerResponse
 
@@ -34,6 +35,7 @@ class ClientConnection:
             # Listeners(),
             # Sessions(),
             Modules(),
+            Profiles(),
             # Stagers()
         ]
         self.task = None

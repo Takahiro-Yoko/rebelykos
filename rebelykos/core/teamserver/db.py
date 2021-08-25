@@ -44,3 +44,21 @@ class AsyncRLDatabase:
     async def __aexit__(self, exec_type, exc, tb):
         await self.db.commit()
         await self.db.close()
+
+class RLDatabase:
+
+    def __init__(self, db_path=get_path_in_data_folder("rl.db")):
+        self.db_path = db_path
+
+    def get_profiles(self):
+        with self.db:
+            for row in self.db.execute("SELECT * from profiles").fetchall():
+                yield row
+
+    # def add_profile(self, 
+    def __enter__(self):
+        self.db = sqlite3.connect(self.db_path)
+        return self
+
+    def __exit__(self, exec_type, exc, tb):
+        self.db.close()
