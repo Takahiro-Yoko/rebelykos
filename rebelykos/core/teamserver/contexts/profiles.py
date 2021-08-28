@@ -1,5 +1,3 @@
-import logging
-
 from rebelykos.core.teamserver.db import AsyncRLDatabase, RLDatabase
 from rebelykos.core.utils import CmdError
 
@@ -25,9 +23,9 @@ class Profiles:
     def set(self, name: str, value: str):
         if not self.selected:
             raise CmdError("No profile selected")
-        try:
+        elif name in self.selected:
             self.selected[name] = value
-        except KeyError:
+        else:
             raise CmdError(f"Unknown option '{name}'")
 
     def use(self, name: str):
@@ -43,7 +41,6 @@ class Profiles:
                                                   1)},
                                      "name": name}
                     return self.selected
-        logging.debug(f"profile {name} does not exist")
         self.selected = {"profile": name,
                          "access_key_id": "",
                          "secret_access_key": "",
@@ -51,6 +48,14 @@ class Profiles:
                          "region": "",
                          "name": name}
         return self.selected
+
+    def update(self):
+        if all(self.selected[k] for k in ("profile", "access_key_id",
+                                          "secret_access_key", "region")):
+            with RLDatabase() as db:
+                db.upsert(self.selected)
+        else:
+            raise CmdError("Required option(s) not set")
 
     def __iter__(self):
         yield ("profiles", len(self.profiles))

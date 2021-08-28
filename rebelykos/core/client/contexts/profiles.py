@@ -59,3 +59,11 @@ class Profiles:
             name  profile to select
         """
         self.selected = response.result
+
+    @cmd
+    def update(self):
+        """
+        Update the specified profile information on database
+
+        Usage: add [-h]
+        """

@@ -55,7 +55,18 @@ class RLDatabase:
             for row in self.db.execute("SELECT * from profiles").fetchall():
                 yield row
 
-    # def add_profile(self, 
+    def upsert(self, data):
+        with self.db:
+            self.db.execute(
+                "INSERT OR REPLACE INTO profiles (profile, access_key_id,"
+                "                                 secret_access_key, region,"
+                "                                 session_token)"
+                "    VALUES (?, ?, ?, ?, ?)",
+                [data[k] for k in ("profile", "access_key_id",
+                                   "secret_access_key", "region",
+                                   "session_token")]
+            )
+
     def __enter__(self):
         self.db = sqlite3.connect(self.db_path)
         return self
