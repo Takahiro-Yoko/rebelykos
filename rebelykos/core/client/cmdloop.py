@@ -140,14 +140,10 @@ class RLShell:
                     logging.debug(f"response: {res}")
                     if res.status == "success" and res.result:
                         if hasattr(self.current_context, cmd[0]):
-                            run_in_terminal(
-                                functools.partial(
-                                    getattr(self.current_context, cmd[0]),
-                                    args=args,
-                                    response=res
-                                )
+                            getattr(self.current_context, cmd[0])(
+                                args=args,
+                                response=res
                             )
-                            self.current_context.selected = res.result
                     elif res.status == "error":
                         print_bad(res.result)
                 if self.current_context.name != "main":
