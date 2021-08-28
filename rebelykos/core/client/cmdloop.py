@@ -79,10 +79,8 @@ class RLShell:
 
     async def update_prompt(self, ctx):
         self.prompt_session.message = HTML(
-            ("[<ansiyellow>"
-             f"{len(self.teamservers.connections)}"
-             f"</ansiyellow>] RL (<ansired>{ctx.name}</ansired>)"
-             f"{' >> ' if not ctx.prompt else ctx.prompt + ' >> ' }")
+            (f"[<ansiyellow>{len(self.teamservers.connections)}</ansiyellow>]"
+             f" RL (<ansired>{ctx.name}</ansired>){ctx.prompt or '' } >> ")
         )
 
     async def switched_context(self, text):
