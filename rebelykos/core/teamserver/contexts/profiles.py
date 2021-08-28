@@ -50,7 +50,7 @@ class Profiles:
                          "session_token": "",
                          "region": "",
                          "name": name}
-            
+        return self.selected
 
     def __iter__(self):
         yield ("profiles", len(self.profiles))

@@ -13,6 +13,7 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.formatted_text import HTML
 from terminaltables import SingleTable
 
+from rebelykos.core.utils import print_bad
 from rebelykos.core.client.contexts.teamservers import TeamServers
 from rebelykos.core.client.utils import cmd, register_cli_cmds
 
@@ -26,8 +27,7 @@ def bottom_toolbar(ts):
         info_bar2 = (f"[Users: {len(ts.stats.USERS)}]")
         ljustify_amount = terminal_width - len(info_bar2)
         return HTML(f"{info_bar1:<{ljustify_amount}}{info_bar2}")
-    else:
-        return HTML('<b><style bg="ansired">Disconnected</style></b>')
+    return HTML('<b><style bg="ansired">Disconnected</style></b>')
 
 class RLCompleter(Completer):
     def __init__(self, cli_menu):
@@ -149,8 +149,9 @@ class RLShell:
                                     response=res
                                 )
                             )
+                            self.current_context.selected = res.result
                     elif res.status == "error":
-                        print(res.result)
+                        print_bad(res.result)
                 if self.current_context.name != "main":
                     await self.update_prompt(self.current_context)
 
