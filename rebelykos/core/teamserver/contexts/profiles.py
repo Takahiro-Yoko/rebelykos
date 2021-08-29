@@ -1,4 +1,4 @@
-from rebelykos.core.teamserver.db import AsyncRLDatabase, RLDatabase
+from rebelykos.core.teamserver.db import RLDatabase
 from rebelykos.core.utils import CmdError
 
 

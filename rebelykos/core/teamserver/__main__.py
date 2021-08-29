@@ -25,7 +25,7 @@ from websockets import WebSocketServerProtocol
 
 from rebelykos.core.events import Events
 from rebelykos.core.utils import create_self_signed_cert
-from rebelykos.core.teamserver.db import AsyncRLDatabase
+from rebelykos.core.teamserver.db import RLDatabase
 from rebelykos.core.teamserver.users import Users, UsernameAlreadyPresentError
 from rebelykos.core.teamserver.contexts import (
     # Listeners,
@@ -156,12 +156,7 @@ class RLWebSocketServerProtocol(WebSocketServerProtocol):
 async def server(stop, args, ts_digest):
     if not os.path.exists(get_path_in_data_folder("rl.db")):
         logging.info("Creating database")
-        await AsyncRLDatabase.create_db_and_schema()
-
-    # test
-    # async with AsyncRLDatabase() as db:
-    #     async for row in db.get_profiles():
-    #         print(row)
+        RLDatabase.create_db_and_schema()
 
     ts = TeamServer()
 
