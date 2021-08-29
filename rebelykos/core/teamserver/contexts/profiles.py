@@ -50,8 +50,10 @@ class Profiles:
         return self.selected
 
     def update(self):
-        if all(self.selected[k] for k in ("profile", "access_key_id",
-                                          "secret_access_key", "region")):
+        if not self.selected:
+            raise CmdError("No profile selected")
+        elif all(self.selected[k] for k in ("profile", "access_key_id",
+                                            "secret_access_key", "region")):
             with RLDatabase() as db:
                 db.upsert(self.selected)
         else:
