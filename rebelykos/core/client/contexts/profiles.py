@@ -45,7 +45,7 @@ class Profiles:
         table_data = [["profile", "access_key_id", "secret_access_key",
                        "region", "session_token"]]
         table_data.append([response.result[k] for k in table_data[0]])
-        table = SingleTable(table_data, title=self.selected["name"])
+        table = SingleTable(table_data, title="profile")
         print(table.table)
 
     @cmd
@@ -67,3 +67,16 @@ class Profiles:
 
         Usage: add [-h]
         """
+
+    @cmd
+    def list(self, response):
+        """
+        Show all stored profiles
+
+        Usage: list [-h]
+        """
+        table_data = [["profile", "access_key_id", "secret_access_key",
+                       "region", "session_token"]]
+        table_data.extend(row for row in response.result)
+        table = SingleTable(table_data, title="Profiles")
+        print(table.table)

@@ -36,16 +36,16 @@ class Profiles:
                                      in enumerate(("profile",
                                                    "access_key_id",
                                                    "secret_access_key",
-                                                   "session_token",
-                                                   "region"),
+                                                   "region",
+                                                   "session_token"),
                                                   1)},
                                      "name": name}
                     return self.selected
         self.selected = {"profile": name,
                          "access_key_id": "",
                          "secret_access_key": "",
-                         "session_token": "",
                          "region": "",
+                         "session_token": "",
                          "name": name}
         return self.selected
 
@@ -56,6 +56,11 @@ class Profiles:
                 db.upsert(self.selected)
         else:
             raise CmdError("Required option(s) not set")
+
+    def list(self):
+        with RLDatabase() as db:
+            return [row[1:] for row in db.get_profiles()]
+        return []
 
     def __iter__(self):
         yield ("profiles", len(self.profiles))

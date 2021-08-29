@@ -19,8 +19,8 @@ class AsyncRLDatabase:
                 "profile" text,
                 "access_key_id" text,
                 "secret_access_key" text,
-                "session_token" text,
                 "region" text,
+                "session_token" text,
                 UNIQUE(profile)
             )''')
 
