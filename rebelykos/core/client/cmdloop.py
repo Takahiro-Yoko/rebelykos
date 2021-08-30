@@ -49,18 +49,29 @@ class RLCompleter(Completer):
                             if conn.alias.startswith(word_before_cursor):
                                 yield Completion(conn.alias,
                                                  -len(word_before_cursor))
-                if self.cli_menu.teamservers.selected:
-                    if cmd_line[0] == "use":
-                        for loadable in \
-                                self.cli_menu.current_context.available:
-                            if word_before_cursor in loadable:
-                                try:
-                                    yield Completion(loadable,
-                                                     -len(cmd_line[1]))
-                                except IndexError:
-                                    yield Completion(loadable,
-                                                     -len(word_before_cursor))
-                    return
+
+                # if self.cli_menu.teamservers.selected:
+                #     if cmd_line[0] == "use":
+                #         for loadable in \
+                #                 self.cli_menu.current_context.available:
+                #             if word_before_cursor in loadable:
+                #                 try:
+                #                     yield Completion(loadable,
+                #                                      -len(cmd_line[1]))
+                #                 except IndexError:
+                #                     yield Completion(loadable,
+                #                                      -len(word_before_cursor))
+                #         return
+
+                if self.cli_menu.current_context.name == "profiles":
+                    if cmd_line[0] == "set":
+                        for name in ("access_key_id", "secret_access_key",
+                                     "region", "session_token"):
+                            if len(cmd_line) < 3 and \
+                                    name.startswith(word_before_cursor):
+                                yield Completion(name,
+                                                 -len(word_before_cursor))
+                        return
 
             if hasattr(self.cli_menu.current_context, "_cmd_registry"):
                 for cmd in self.cli_menu.current_context._cmd_registry:
