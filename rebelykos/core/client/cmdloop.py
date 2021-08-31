@@ -46,7 +46,8 @@ class RLCompleter(Completer):
                     if cmd_line[0] in \
                             self.cli_menu.current_context._cmd_registry:
                         for conn in self.cli_menu.current_context.connections:
-                            if conn.alias.startswith(word_before_cursor):
+                            if conn.stats.CONNECTED and \
+                                    conn.alias.startswith(word_before_cursor):
                                 yield Completion(conn.alias,
                                                  -len(word_before_cursor))
 
@@ -66,7 +67,7 @@ class RLCompleter(Completer):
                 if self.cli_menu.current_context.name == "profiles":
                     if cmd_line[0] == "set":
                         for name in ("access_key_id", "secret_access_key",
-                                     "region", "session_token"):
+                                     "region", "session_token", "profile"):
                             if len(cmd_line) < 3 and \
                                     name.startswith(word_before_cursor):
                                 yield Completion(name,
@@ -101,7 +102,7 @@ class RLShell:
         self.completer = RLCompleter(self)
         self.prompt_session = PromptSession(
             HTML(f"[<ansiyellow>{len(self.teamservers.connections)}"
-                 "</ansiyellow>] RL >> "),
+                 "</ansiyellow>] RL ≫ "),
             bottom_toolbar=functools.partial(bottom_toolbar,
                                              ts=self.teamservers),
             completer=self.completer,
@@ -124,7 +125,7 @@ class RLShell:
     async def update_prompt(self, ctx):
         self.prompt_session.message = HTML(
             (f"[<ansiyellow>{len(self.teamservers.connections)}</ansiyellow>]"
-             f" RL (<ansired>{ctx.name}</ansired>){ctx.prompt or '' } >> ")
+             f" RL (<ansired>{ctx.name}</ansired>){ctx.prompt or '' } ≫ ")
         )
 
     async def switched_context(self, text):

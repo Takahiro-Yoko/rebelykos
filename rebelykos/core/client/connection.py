@@ -16,11 +16,8 @@ from prompt_toolkit.application import run_in_terminal
 from rebelykos.core.utils import gen_random_string
 from rebelykos.core.client.stats import ClientConnectionStats
 from rebelykos.core.client.event_handlers import ClientEventHandlers
-# from rebelykos.core.client.contexts.listeners import Listeners
-# from rebelykos.core.client.contexts.sessions import Sessions
 from rebelykos.core.client.contexts.modules import Modules
 from rebelykos.core.client.contexts.profiles import Profiles
-# from rebelykos.core.client.contexts.stagers import Stagers
 from rebelykos.core.client.server_response import ServerResponse
 
 
@@ -32,11 +29,8 @@ class ClientConnection:
         self.event_handlers = ClientEventHandlers(self)
         self.msg_queue = asyncio.Queue(maxsize=1)
         self.contexts = [
-            # Listeners(),
-            # Sessions(),
             Modules(),
             Profiles(),
-            # Stagers()
         ]
         self.task = None
         self.ws = None
@@ -94,6 +88,10 @@ class ClientConnection:
                     #     self.url.hostname,
                     #     self.url.port
                     # )
+                if self.url.username is None or self.url.password is None:
+                    logging.error("Username or password (or both) is empty")
+                    self.stats.CONNECTED = False
+                    break
                 async with websockets.connect(
                     url,
                     extra_headers=self.generate_auth_header(
@@ -114,7 +112,8 @@ class ClientConnection:
                     ])
             except ConnectionRefusedError as e:
                 logging.error(e)
-                #
+                logging.error("Error connecting to teamserver"
+                              ": connection was refused")
                 self.stats.CONNECTED = False
 
             await asyncio.sleep(5)
@@ -162,3 +161,10 @@ class ClientConnection:
             recv_msg = await self.msg_queue.get()
             self.msg_queue.task_done()
             return ServerResponse(recv_msg, self)
+
+    def __str__(self):
+        return f"{self.url.scheme}://{self.url.hostname}:{self.url.port}"
+
+    def __repr__(self):
+        return (f"<Teamserver '{self.alias}' ({self.url.scheme}://"
+                f"{self.url.username}@{self.url.hostname}:{self.url.port})>")
