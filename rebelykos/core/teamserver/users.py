@@ -61,7 +61,7 @@ class Users:
         name, _ = decode_auth_header(websocket.request_headers)
         if [user for user in self.users if user.name == name]:
             raise UsernameAlreadyPresentError(f"User with username '{name}'"
-                                              "already exists")
+                                              " already exists")
 
         user = User(name, websocket)
         self.users.add(user)

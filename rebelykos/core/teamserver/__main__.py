@@ -28,11 +28,8 @@ from rebelykos.core.utils import create_self_signed_cert
 from rebelykos.core.teamserver.db import RLDatabase
 from rebelykos.core.teamserver.users import Users, UsernameAlreadyPresentError
 from rebelykos.core.teamserver.contexts import (
-    # Listeners,
-    # Sessions,
     Modules,
     Profiles,
-    # Stagers
 )
 from rebelykos.core.utils import (
     get_data_folder,
@@ -45,13 +42,9 @@ from rebelykos.core.utils import (
 class TeamServer:
     def __init__(self):
         self.users = Users()
-        # self.loop = asyncio.get_running_loop()
         self.contexts = {
-            # 'listeners': Listeners(self),
-            # 'sessions': Sessions(self),
             'modules': Modules(self),
             "profiles": Profiles(self),
-            # 'stagers': Stagers(self),
             'users': self.users
         }
 

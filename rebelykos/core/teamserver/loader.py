@@ -28,12 +28,8 @@ class Loader:
                         module != "__init__.py":
                     try:
                         m = self.load(os.path.join(path, module))
-                        if self.type == 'listener':
-                            self.loaded.append(m.RLListener())
-                        elif self.type == "module":
+                        if self.type == "module":
                             self.loaded.append(m.RLModule())
-                        elif self.type == "stager":
-                            self.loaded.append(m.RLStager())
                     except Exception as e:
                         logging.error(f"Failed loading {self.type} "
                                       f"{os.path.join(path, module)}: {e}")
