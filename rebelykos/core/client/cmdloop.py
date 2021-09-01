@@ -51,18 +51,18 @@ class RLCompleter(Completer):
                                 yield Completion(conn.alias,
                                                  -len(word_before_cursor))
 
-                # if self.cli_menu.teamservers.selected:
-                #     if cmd_line[0] == "use":
-                #         for loadable in \
-                #                 self.cli_menu.current_context.available:
-                #             if word_before_cursor in loadable:
-                #                 try:
-                #                     yield Completion(loadable,
-                #                                      -len(cmd_line[1]))
-                #                 except IndexError:
-                #                     yield Completion(loadable,
-                #                                      -len(word_before_cursor))
-                #         return
+                if self.cli_menu.teamservers.selected:
+                    if cmd_line[0] == "use":
+                        for loadable in \
+                                self.cli_menu.current_context.available:
+                            if word_before_cursor in loadable:
+                                try:
+                                    yield Completion(loadable,
+                                                     -len(cmd_line[1]))
+                                except IndexError:
+                                    yield Completion(loadable,
+                                                     -len(word_before_cursor))
+                        return
 
                 if self.cli_menu.current_context.name == "profiles":
                     if cmd_line[0] == "set":
@@ -71,6 +71,17 @@ class RLCompleter(Completer):
                             if len(cmd_line) < 3 and \
                                     name.startswith(word_before_cursor):
                                 yield Completion(name,
+                                                 -len(word_before_cursor))
+                        return
+
+                if hasattr(self.cli_menu.current_context, "selected") and \
+                        self.cli_menu.current_context.selected:
+                    if cmd_line[0] == "set":
+                        for option in self.cli_menu.current_context.selected[
+                            "options"
+                        ]:
+                            if option.lower().startswith(word_before_cursor):
+                                yield Completion(option,
                                                  -len(word_before_cursor))
                         return
 
@@ -111,6 +122,8 @@ class RLShell:
             auto_suggest=AutoSuggestFromHistory(),
             search_ignore_case=True
         )
+        # To avoid error in tab completion
+        self.available = []
 
     def get_context(self, ctx_name=None):
         try:
