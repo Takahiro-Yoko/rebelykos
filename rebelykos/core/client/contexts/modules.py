@@ -1,6 +1,6 @@
 from terminaltables import SingleTable
 
-from rebelykos.core.response import Response
+from rebelykos.core.response import Response as res
 from rebelykos.core.utils import (
     print_bad,
     print_good,
@@ -102,13 +102,13 @@ class Modules:
             run [-h]
         """
         for (k, v) in response.result:
-            if k == int(Response.GOOD):
+            if k == res.GOOD:
                 print_good(v)
-            elif k == int(Response.INFO):
+            elif k == res.INFO:
                 print_info(v)
-            elif k == int(Response.BAD):
+            elif k == res.BAD:
                 print_bad(v)
-            elif k == int(Response.RESULT):
+            elif k == res.RESULT:
                 print(v)
 
     @cmd
