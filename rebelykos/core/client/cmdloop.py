@@ -77,12 +77,15 @@ class RLCompleter(Completer):
                 if hasattr(self.cli_menu.current_context, "selected") and \
                         self.cli_menu.current_context.selected:
                     if cmd_line[0] == "set":
-                        for option in self.cli_menu.current_context.selected[
-                            "options"
-                        ]:
-                            if option.lower().startswith(word_before_cursor):
-                                yield Completion(option,
-                                                 -len(word_before_cursor))
+                        if len(cmd_line) < 3:
+                            for option in self.cli_menu.current_context.selected[
+                                "options"
+                            ]:
+                                if option.lower().startswith(
+                                        word_before_cursor
+                                ):
+                                    yield Completion(option,
+                                                     -len(word_before_cursor))
                         return
 
             if hasattr(self.cli_menu.current_context, "_cmd_registry"):

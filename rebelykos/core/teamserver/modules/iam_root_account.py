@@ -1,15 +1,9 @@
-from collections import OrderedDict
-import logging
-# import pprint
-
 import boto3
 import botocore
 
 from rebelykos.core.response import Response as res
 from rebelykos.core.utils import print_good, print_info, print_bad
 from rebelykos.core.teamserver.module import Module
-
-# pp = pprint.PrettyPrinter(indent=4, width=80)
 
 
 class RLModule(Module):

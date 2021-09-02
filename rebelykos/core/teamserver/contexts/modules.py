@@ -1,6 +1,5 @@
 import asyncio
 from rebelykos.core.events import Events
-from rebelykos.core.teamserver import ipc_server
 from rebelykos.core.teamserver.db import RLDatabase
 from rebelykos.core.teamserver.loader import Loader
 from rebelykos.core.utils import CmdError, get_path_in_package
