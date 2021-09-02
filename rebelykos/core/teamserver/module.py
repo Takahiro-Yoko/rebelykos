@@ -8,7 +8,7 @@ class Module:
         # Currently all modules using profile
         self.options = {
             "profile": {
-                "Description": "The profile to use privileges check",
+                "Description": "The profile to use module",
                 "Required": True,
                 "Value": ""
             }

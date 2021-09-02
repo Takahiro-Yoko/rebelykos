@@ -48,6 +48,7 @@ class RLDatabase:
                 self.db.execute("DELETE FROM profiles WHERE profile = ?",
                                 [profile])
                 msg = f"Remove '{profile}' from the database"
+                logging.debug(msg)
             except sqlite3.IntegrityError:
                 msg = f"Could not remove {profile} ffrom the database"
                 logging.debug(msg)
