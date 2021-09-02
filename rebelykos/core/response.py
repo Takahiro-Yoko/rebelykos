@@ -1,6 +1,5 @@
 import enum
 
-
 class Response(enum.IntEnum):
     GOOD = 1
     INFO = 2

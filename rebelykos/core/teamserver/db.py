@@ -42,6 +42,17 @@ class RLDatabase:
                                    "session_token")]
             )
 
+    def remove(self, profile):
+        with self.db:
+            try:
+                self.db.execute("DELETE FROM profiles WHERE profile = ?",
+                                [profile])
+                msg = f"Remove '{profile}' from the database"
+            except sqlite3.IntegrityError:
+                msg = f"Could not remove {profile} ffrom the database"
+                logging.debug(msg)
+            return msg
+
     def __enter__(self):
         self.db = sqlite3.connect(self.db_path)
         return self

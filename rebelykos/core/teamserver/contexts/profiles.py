@@ -64,6 +64,10 @@ class Profiles:
             return [row[1:] for row in db.get_profiles()]
         return []
 
+    def remove(self, profile):
+        with RLDatabase() as db:
+            return db.remove(profile)
+
     def __iter__(self):
         yield ("profiles", len(self.profiles))
 

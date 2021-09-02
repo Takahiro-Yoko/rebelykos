@@ -80,3 +80,12 @@ class Profiles:
         table_data.extend(row for row in response.result)
         table = SingleTable(table_data, title="Profiles")
         print(table.table)
+
+    @cmd
+    def remove(self, response):
+        """
+        Remove profile from the database
+
+        Usage: remove <profile> [-h]
+        """
+        print(response.result)
