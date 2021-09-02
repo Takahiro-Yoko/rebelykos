@@ -4,9 +4,15 @@ class Module:
         self.language = ""
         self.description = ""
         self.author = ""
-        self.run_in_thread = True
         self.references = []
-        self.options = {}
+        # Currently all modules using profile
+        self.options = {
+            "profile": {
+                "Description": "The profile to use privileges check",
+                "Required": True,
+                "Value": ""
+            }
+        }
 
     def __getitem__(self, key):
         for k, v in self.options.items():

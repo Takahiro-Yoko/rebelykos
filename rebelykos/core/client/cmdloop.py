@@ -33,7 +33,6 @@ class RLCompleter(Completer):
     def __init__(self, cli_menu):
         self.cli_menu = cli_menu
 
-    # currently just dummy
     def get_completions(self, document, complete_event):
         word_before_cursor = document.get_word_before_cursor()
         try:
@@ -62,6 +61,16 @@ class RLCompleter(Completer):
                                 except IndexError:
                                     yield Completion(loadable,
                                                      -len(word_before_cursor))
+                        return
+                    elif 2 <= len(cmd_line) and cmd_line[0] == "set" and \
+                            cmd_line[1] == "profile":
+                        profiles = self.cli_menu.get_context("profiles")
+                        for profile in profiles.profiles:
+                            if profile.startswith(word_before_cursor):
+                                yield Completion(
+                                        profile,
+                                        -len(word_before_cursor)
+                                )
                         return
 
                 if self.cli_menu.current_context.name == "profiles":
@@ -146,6 +155,10 @@ class RLShell:
 
     async def switched_context(self, text):
         for ctx in self.get_context():
+            if ctx.name == "profiles":
+                res = await self.teamservers.send(ctx=ctx.name,
+                                                  cmd="list")
+                ctx.profiles = [row[0] for row in res.result]
             if text.lower() == ctx.name:
                 if ctx._remote is True:
                     try:

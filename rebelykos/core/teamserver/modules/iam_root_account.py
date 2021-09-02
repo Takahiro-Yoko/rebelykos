@@ -8,19 +8,12 @@ from rebelykos.core.teamserver.module import Module
 
 class RLModule(Module):
     def __init__(self):
+        super().__init__()
         self.name = "check_root_account"
         self.language = "python"
         self.description = ("Check if the account has root"
                             " or elevated IAM privileges")
         self.author = ""
-        self.references = []
-        self.options = {
-            "profile": {
-                "Description": "The profile to use privileges check",
-                "Required": True,
-                "Value": ""
-            }
-        }
 
     def run(self):
         client = boto3.client("iam", **self.options["profile"]["Value"])

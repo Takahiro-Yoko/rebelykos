@@ -13,6 +13,8 @@ class Profiles:
         self.prompt = None
         self.available = []
         self._selected = None
+        # for tab completion
+        self.profiles = []
 
     @property
     def selected(self):

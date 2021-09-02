@@ -56,16 +56,20 @@ class Profiles:
                                             "secret_access_key", "region")):
             with RLDatabase() as db:
                 db.upsert(self.selected)
+                self.profiles.add(self.selected["profile"])
         else:
             raise CmdError("Required option(s) not set")
 
     def list(self):
         with RLDatabase() as db:
+            self.profiles = set(row[1] for row in db.get_profiles())
             return [row[1:] for row in db.get_profiles()]
         return []
 
     def remove(self, profile):
         with RLDatabase() as db:
+            if profile in self.profiles:
+                self.profiles.remove(profile)
             return db.remove(profile)
 
     def __iter__(self):

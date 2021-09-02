@@ -29,8 +29,8 @@ class ClientConnection:
         self.event_handlers = ClientEventHandlers(self)
         self.msg_queue = asyncio.Queue(maxsize=1)
         self.contexts = [
-            Modules(),
             Profiles(),
+            Modules(),
         ]
         self.task = None
         self.ws = None
