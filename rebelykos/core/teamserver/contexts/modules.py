@@ -61,6 +61,9 @@ class Modules(Loader):
     def run(self):
         if not self.selected:
             raise CmdError("No module selected")
+        elif not all(v["Value"] for v in self.selected.options.values()
+                     if v["Required"]):
+            raise CmdError("Required option(s) not set")
         return self.selected.run()
 
     def reload(self):
