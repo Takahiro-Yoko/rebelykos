@@ -70,7 +70,7 @@ class Modules(Loader):
         if self.selected:
             self.use(self.selected.name)
 
-        asyncio.create_task(self.teamservers.update_available_loadables())
+        asyncio.create_task(self.teamserver.update_available_loadables())
 
     def get_selected(self):
         if self.selected:
