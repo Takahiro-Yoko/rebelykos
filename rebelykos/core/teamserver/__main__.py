@@ -142,7 +142,7 @@ class RLWebSocketServerProtocol(WebSocketServerProtocol):
                 return http.HTTPStatus.UNAUTHORIZED, [], b"UNAUTHORIZED\n"
         except KeyError:
             logging.error("Received handshake with no authorization header")
-            return htttp.HTTPStatus.FORBIDDEN, [], b"FORBIDDEN\n"
+            return http.HTTPStatus.FORBIDDEN, [], b"FORBIDDEN\n"
 
         logging.info(f"User {username} authenticated successfully")
 
