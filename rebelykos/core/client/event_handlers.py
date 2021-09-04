@@ -7,8 +7,6 @@ class ClientEventHandlers:
 
     def stats_update(self, data):
         logging.debug(f"in stats_update event handler, got: {data}")
-        # self.connection.stats.LISTENERS = data["listeners"]
-        # self.connection.stats.SESSIONS = data["sessions"]
         self.connection.stats.USERS = data["users"]
         # self.connection.stats.IPS = data["ips"]
 
