@@ -62,8 +62,8 @@ class RLCompleter(Completer):
                                     yield Completion(loadable,
                                                      -len(word_before_cursor))
                         return
-                    elif 2 <= len(cmd_line) and cmd_line[0] == "set" and \
-                            cmd_line[1] == "profile":
+                    elif 2 <= len(cmd_line) <= 3 and cmd_line[0] == "set" \
+                            and cmd_line[1] == "profile":
                         profiles = self.cli_menu.get_context("profiles")
                         for profile in profiles.profiles:
                             if profile.startswith(word_before_cursor):
