@@ -13,7 +13,10 @@ import websockets
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit.application import run_in_terminal
 
-from rebelykos.core.utils import gen_random_string
+from rebelykos.core.utils import (
+    gen_random_string,
+    get_remote_cert_fingerprint
+)
 from rebelykos.core.client.stats import ClientConnectionStats
 from rebelykos.core.client.event_handlers import ClientEventHandlers
 from rebelykos.core.client.contexts.modules import Modules
@@ -85,10 +88,17 @@ class ClientConnection:
                 if self.url.scheme == "wss":
                     logging.debug(f"Attempting to retrieve cert fingerprint "
                                   f"of {self.url.hostname}:{self.url.port}")
-                    # server_cert_fingerprint = get_remote_cert_fingerprint(
-                    #     self.url.hostname,
-                    #     self.url.port
-                    # )
+                    server_cert_fingerprint = get_remote_cert_fingerprint(
+                        self.url.hostname,
+                        self.url.port
+                    )
+                    logging.warning(
+                        (f"Teamserver ({self.url.hostname}:{self.url.port}"
+                         f" certificate fingerprint is "
+                         f"{server_cert_fingerprint.hex()} "
+                         "make sure this matches the output from the server!")
+                    )
+
                 if self.url.username is None or self.url.password is None:
                     logging.error("Username or password (or both) is empty")
                     self.stats.CONNECTED = False

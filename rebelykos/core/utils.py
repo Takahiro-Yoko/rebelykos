@@ -5,6 +5,7 @@ import logging
 import netifaces
 import os
 import random
+import ssl
 import string
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -102,6 +103,18 @@ def create_self_signed_cert(
 
     logging.info(f"Self-signed certificate written to {key_file}, {cert_file}"
                  f" and {chain_file}")
+
+def get_remote_cert_fingerprint(host: str, port: int):
+    pem_data = ssl.get_server_certificate((host, port))
+    cert = x509.load_pem_x509_certificate(pem_data.encode(),
+                                          default_backend())
+    return cert.fingerprint(hashes.SHA256())
+
+def get_cert_fingerprint(cert_path):
+    with open(cert_path) as pem_data:
+        cert = x509.load_pem_x509_certificate(pem_data.read().encode(),
+                                              default_backend())
+        return cert.fingerprint(hashes.SHA256())
 
 def print_good(msg):
     print(f"{colored('[+]', 'green')} {msg}")

@@ -24,7 +24,10 @@ import websockets
 from websockets import WebSocketServerProtocol
 
 from rebelykos.core.events import Events
-from rebelykos.core.utils import create_self_signed_cert
+from rebelykos.core.utils import (
+    create_self_signed_cert,
+    get_cert_fingerprint
+)
 from rebelykos.core.teamserver.db import RLDatabase
 from rebelykos.core.teamserver.users import Users, UsernameAlreadyPresentError
 from rebelykos.core.teamserver.contexts import (
@@ -162,10 +165,13 @@ async def server(stop, args, ts_digest):
             create_self_signed_cert()
             ssl_context.load_cert_chain(get_path_in_data_folder("chain.pem"))
 
-        # server_cert_fingerprint = get_cert_fingerprint(
-        #     get_path_in_data_folder("cert.pem")
-        # )
-        # logging.warning()
+        server_cert_fingerprint = get_cert_fingerprint(
+            get_path_in_data_folder("cert.pem")
+        )
+        logging.warning(
+            (f"{colored('Teamserver certificate fingerprint:', 'yellow')}"
+             f" {colored(server_cert_fingerprint.hex(), 'red')}")
+        )
 
     RLWebSocketServerProtocol.ts_digest = ts_digest
     async with websockets.serve(
