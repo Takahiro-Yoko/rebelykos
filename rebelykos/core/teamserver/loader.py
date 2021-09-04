@@ -13,9 +13,7 @@ class Loader:
 
     def load(self, path):
         module_spec = importlib.util.spec_from_file_location(self.type, path)
-        print(module_spec)
         module = importlib.util.module_from_spec(module_spec)
-        print(module)
         module_spec.loader.exec_module(module)
         return module
 
