@@ -28,6 +28,7 @@ class ClientConnection:
         self.stats = ClientConnectionStats()
         self.event_handlers = ClientEventHandlers(self)
         self.msg_queue = asyncio.Queue(maxsize=1)
+        # Profiles() must be first for tab completion
         self.contexts = [
             Profiles(),
             Modules(),
