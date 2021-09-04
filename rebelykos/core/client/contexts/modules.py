@@ -1,3 +1,4 @@
+import json
 from terminaltables import SingleTable
 
 from rebelykos.core.response import Response as res
@@ -109,7 +110,7 @@ class Modules:
             elif k == res.BAD:
                 print_bad(v)
             elif k == res.RESULT:
-                print(v)
+                print(json.dumps(v, indent=4, sort_keys=True))
 
     @cmd
     def reload(self, response):

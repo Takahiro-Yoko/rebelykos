@@ -13,7 +13,8 @@ class User:
         self.ip, self.port = websocket.remote_address
 
     async def send(self, data):
-        await self.websocket.send(json.dumps(data))
+        # await self.websocket.send(json.dumps(data))
+        await self.websocket.send(json.dumps(data, default=str))
 
     async def disconnect(self):
         await self.websocket.close()
