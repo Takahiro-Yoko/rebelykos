@@ -8,7 +8,6 @@ class RLModule(Module):
     def __init__(self):
         super().__init__()
         self.name = "check_root"
-        self.language = "Python"
         self.description = ("Check if the account has root"
                             " or elevated IAM privileges")
         self.author = "Takahiro Yokoyama"

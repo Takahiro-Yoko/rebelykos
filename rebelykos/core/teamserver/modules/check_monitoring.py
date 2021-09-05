@@ -8,7 +8,6 @@ class RLModule(Module):
     def __init__(self):
         super().__init__()
         self.name = "check_monitoring"
-        self.language = "Python"
         self.description = ("Check whether CloudTrail, GuadDuty"
                             " or Access Analyzer runnig")
         self.author = "Takahiro Yokoyama"

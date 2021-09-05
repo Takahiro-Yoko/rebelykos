@@ -5,7 +5,8 @@ from rebelykos.core.response import Response as res
 class Module:
     def __init__(self):
         self.name = ""
-        self.language = ""
+        # Currently all module written in Python3
+        self.language = "Python"
         self.description = ""
         self.author = ""
         self.references = []
