@@ -14,8 +14,8 @@ class RLModule(Module):
         self.author = "Takahiro Yokoyama"
 
     def run(self):
-        client = boto3.client("iam", **self["profile"])
         result = []
+        client = boto3.client("iam", **self["profile"])
         res_code, obj = self._handle_err(client.get_account_summary)
         if res_code == res.RESULT:
             result.append((res.GOOD, "Root key! or IAM access"))
