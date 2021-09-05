@@ -1,5 +1,4 @@
 import boto3
-import botocore
 
 from rebelykos.core.response import Response as res
 from rebelykos.core.teamserver.module import Module
