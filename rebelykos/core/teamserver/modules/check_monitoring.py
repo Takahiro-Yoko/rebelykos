@@ -16,3 +16,13 @@ class RLModule(Module):
 
     def run(self):
         client = boto3.client("cloudtrail", **self["profile"])
+        res_code, obj = self._handle_err(client.describe_trails)
+        result = []
+        if res_code == res.RESULT:
+            result.append((res.GOOD,
+                           "You have right to describe cloudtrails!"))
+            result.append((res.INFO, "Describing cloudtrails"))
+            result.append((res_code, obj["trailList"]))
+        else:
+            result.append((res_code, obj))
+        return result
