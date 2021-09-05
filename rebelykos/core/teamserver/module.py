@@ -18,12 +18,18 @@ class Module:
             }
         }
 
-    def _handle_err(self, func, **kwargs):
+    def _handle_err(self, func, key=None, msg=None, **kwargs):
         try:
-            return res.RESULT, func(**kwargs)
+            func_result = func(**kwargs)[key] if key else func(**kwargs)
+            msgs = []
+            if msg:
+                msgs.append((res.GOOD, msg))
+            msgs.append((res.INFO, f"{func.__name__}({kwargs or ''})"))
+            msgs.append((res.RESULT, func_result))
+            return msgs
         except botocore.exceptions.ClientError as e:
-            return res.BAD, (f'When calling {func.__name__}({kwargs or ""})'
-                             f': {e.response["Error"]["Code"]}')
+            return [(res.BAD, (f'When calling {func.__name__}({kwargs or ""})'
+                               f': {e.response["Error"]["Code"]}'))]
 
     def __getitem__(self, key):
         for k, v in self.options.items():

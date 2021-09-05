@@ -18,26 +18,17 @@ class RLModule(Module):
         result = []
 
         client = boto3.client("cloudtrail", **self["profile"])
-        res_code, obj = self._handle_err(client.describe_trails)
-        if res_code == res.RESULT:
-            result.append((res.INFO, "Describing cloudtrails"))
-            result.append((res_code, obj["trailList"]))
-        else:
-            result.append((res_code, obj))
+        result.extend(self._handle_err(client.describe_trails,
+                                       key="trailList",
+                                       msg="Describing cloudtrails"))
 
         client = boto3.client("guardduty", **self["profile"])
-        res_code, obj = self._handle_err(client.list_detectors)
-        if res_code == res.RESULT:
-            result.append((res.INFO, "Listing guardduty"))
-            result.append((res_code, obj["DetectorIds"]))
-        else:
-            result.append((res_code, obj))
+        result.extend(self._handle_err(client.list_detectors,
+                                       key="DetectorIds",
+                                       msg="Listing guadduty"))
 
         client = boto3.client("accessanalyzer")
-        res_code, obj = self._handle_err(client.list_analyzers)
-        if res_code == res.RESULT:
-            result.append((res.INFO, "Listing accessanalyzers"))
-            result.append((res_code, obj["analyzers"]))
-        else:
-            result.append((res_code, obj))
+        result.extend(self._handle_err(client.list_analyzers,
+                                       key="analyzers",
+                                       msg="Listing accessanalyzers"))
         return result
