@@ -15,14 +15,29 @@ class RLModule(Module):
         self.author = "Takahiro Yokoyama"
 
     def run(self):
+        result = []
+
         client = boto3.client("cloudtrail", **self["profile"])
         res_code, obj = self._handle_err(client.describe_trails)
-        result = []
         if res_code == res.RESULT:
-            result.append((res.GOOD,
-                           "You have right to describe cloudtrails!"))
             result.append((res.INFO, "Describing cloudtrails"))
             result.append((res_code, obj["trailList"]))
+        else:
+            result.append((res_code, obj))
+
+        client = boto3.client("guardduty", **self["profile"])
+        res_code, obj = self._handle_err(client.list_detectors)
+        if res_code == res.RESULT:
+            result.append((res.INFO, "Listing guardduty"))
+            result.append((res_code, obj["DetectorIds"]))
+        else:
+            result.append((res_code, obj))
+
+        client = boto3.client("accessanalyzer")
+        res_code, obj = self._handle_err(client.list_analyzers)
+        if res_code == res.RESULT:
+            result.append((res.INFO, "Listing accessanalyzers"))
+            result.append((res_code, obj["analyzers"]))
         else:
             result.append((res_code, obj))
         return result
