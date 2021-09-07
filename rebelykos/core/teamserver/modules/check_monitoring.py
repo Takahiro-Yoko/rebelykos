@@ -9,7 +9,7 @@ class RLModule(Module):
         super().__init__()
         self.name = "check_monitoring"
         self.description = ("Check whether CloudTrail, GuadDuty"
-                            " or Access Analyzer runnig")
+                            " and Access Analyzer are running")
         self.author = "Takahiro Yokoyama"
 
     def run(self):
