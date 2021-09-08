@@ -50,6 +50,29 @@ class RLCompleter(Completer):
                                 yield Completion(conn.alias,
                                                  -len(word_before_cursor))
 
+                if self.cli_menu.current_context.name == "profiles":
+                    if cmd_line[0] == "set":
+                        if len(cmd_line) < 3:
+                            for name in ("access_key_id",
+                                         "secret_access_key",
+                                         "region",
+                                         "session_token",
+                                         "profile"):
+                                if name.startswith(word_before_cursor):
+                                    yield Completion(name,
+                                                     -len(word_before_cursor))
+                        return
+                    elif cmd_line[0] in ("use", "remove"):
+                        if len(cmd_line) < 3:
+                            profiles = self.cli_menu.get_context("profiles")
+                            for profile in profiles.profiles:
+                                if profile.startswith(word_before_cursor):
+                                    yield Completion(
+                                            profile,
+                                            -len(word_before_cursor)
+                                    )
+                        return
+
                 if self.cli_menu.teamservers.selected:
                     if cmd_line[0] == "use":
                         for loadable in \
@@ -71,16 +94,6 @@ class RLCompleter(Completer):
                                         profile,
                                         -len(word_before_cursor)
                                 )
-                        return
-
-                if self.cli_menu.current_context.name == "profiles":
-                    if cmd_line[0] == "set":
-                        for name in ("access_key_id", "secret_access_key",
-                                     "region", "session_token", "profile"):
-                            if len(cmd_line) < 3 and \
-                                    name.startswith(word_before_cursor):
-                                yield Completion(name,
-                                                 -len(word_before_cursor))
                         return
 
                 if hasattr(self.cli_menu.current_context, "selected") and \
