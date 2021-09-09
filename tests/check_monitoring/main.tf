@@ -74,6 +74,10 @@ resource "aws_s3_bucket" "rebelykos" {
 POLICY
 }
 
+resource "aws_accessanalyzer_analyzer" "rebelykos" {
+  analyzer_name = "rebelykos"
+}
+
 output "key" {
   value = aws_iam_access_key.rebelykos.id
 }
