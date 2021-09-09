@@ -165,6 +165,9 @@ cython_debug/
 *.tfstate
 *.tfstate.*
 
+# .terraform.lock.hcl file
+.terraform.lock.hcl
+
 # Crash log files
 crash.log
 
