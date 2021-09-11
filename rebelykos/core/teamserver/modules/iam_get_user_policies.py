@@ -7,12 +7,11 @@ from rebelykos.core.teamserver.module import Module
 class RLModule(Module):
     def __init__(self):
         super().__init__()
-        self.name = "get_previous_policies"
-        self.description = ("List previous policies to elevate privileges"
-                            " using iam:SetDefaultPolicyVersion")
+        self.name = "get_user_policies"
+        self.description = "List user policies"
         self.author = "Takahiro Yokoyama"
         self.options["user"] = {
-            "Description": ("User to list attached previous policies, "
+            "Description": ("User to list attached policies, "
                             "if not specified, try to get username by "
                             "calling aws sts get-caller-identity with "
                             "current profile"),
