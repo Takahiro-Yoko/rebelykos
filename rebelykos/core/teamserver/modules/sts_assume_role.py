@@ -37,8 +37,8 @@ class RLModule(Module):
             )
         )
         if result[-1][0] == res.RESULT:
-            result.append((res.GOOD, "Successfully assume role"))
             creds = result.pop()[1]["Credentials"]
+            result.append((res.GOOD, "Successfully assume role"))
             new_profile = {
                 "profile": self["rolesessionname"],
                 "access_key_id": creds["AccessKeyId"],
