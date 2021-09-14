@@ -17,15 +17,15 @@ class RLModule(Module):
         self.name = "lambda_privesc"
         self.description = ("Elevate privilege by using iam:PassRole, "
                             "lambda:CreateFunction, and "
-                            "lambda:InvokeFunction")
+                            "lambda:InvokeFunction.")
         self.author = "Takahiro Yokoyama"
         self.options["user"] = {
-            "Description": "User to elevate privilege",
+            "Description": "User to elevate privilege.",
             "Required": True,
             "Value": ""
         }
         self.options["policyarn"] = {
-            "Description": "Policy to attach to user",
+            "Description": "Policy to attach to user.",
             "Required": True,
             "Value": "arn:aws:iam::aws:policy/AdministratorAccess"
         }

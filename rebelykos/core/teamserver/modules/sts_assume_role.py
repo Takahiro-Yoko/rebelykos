@@ -9,7 +9,7 @@ class RLModule(Module):
     def __init__(self):
         super().__init__()
         self.name = "assume_role"
-        self.description = ("run sts assume-role and register this "
+        self.description = ("Run sts assume-role and register this "
                             "new generated credentials to database.")
         self.author = "Takahiro Yokoyama"
         self.options["rolearn"] = {

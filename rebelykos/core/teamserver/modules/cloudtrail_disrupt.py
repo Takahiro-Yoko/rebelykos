@@ -9,11 +9,11 @@ class RLModule(Module):
         super().__init__()
         self.name = "disrupt_cloudtrail"
         self.description = ("Make IncludeGlobalServiceEvents"
-                            " and IsMultiRegionTrail False")
+                            " and IsMultiRegionTrail False.")
         self.author = "Takahiro Yokoyama"
         self.options["name"] = {
-            "Description": ("Name of the trail to disrupt, if not specified"
-                            ", try to disrupt all trails user could list"),
+            "Description": ("Name of the trail to disrupt. if not specified"
+                            ", try to disrupt all trails user could list."),
             "Required": False,
             "Value": ""
         }

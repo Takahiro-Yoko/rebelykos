@@ -12,12 +12,12 @@ class RLModule(Module):
                             "iam:SetDefaultPolicyVersion")
         self.author = "Takahiro Yokoyama"
         self.options["version"] = {
-            "Description": "To use as a default policy version",
+            "Description": "To use as a default policy version.",
             "Required": True,
             "Value": ""
         }
         self.options["policyarn"] = {
-            "Description": "PolicyArn to change default version",
+            "Description": "PolicyArn to change the default version.",
             "Required": True,
             "Value": ""
         }

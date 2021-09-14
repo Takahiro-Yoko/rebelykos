@@ -9,12 +9,12 @@ class RLModule(Module):
         super().__init__()
         self.name = "restore_cloudtrail"
         self.description = ("Make IncludeGlobalServiceEvents"
-                            " and IsMultiRegionTrail True")
+                            " and IsMultiRegionTrail True.")
         self.author = "Takahiro Yokoyama"
         self.options["name"] = {
-            "Description": ("Name of the trail to restore "
+            "Description": ("Name of the trail to restore. "
                             "if not specified, try to disrupt"
-                            " all trails user could list"),
+                            " all trails user could list."),
             "Required": False,
             "Value": ""
         }
