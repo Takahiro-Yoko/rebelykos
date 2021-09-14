@@ -41,8 +41,6 @@ class RLModule(Module):
         client = boto3.client("lambda", **self["profile"])
         user = shlex.quote(self["user"])
         policyarn = shlex.quote(self["policyarn"])
-        # policyarn = shlex.quote(self["policyarn"]) if self["policyarn"] else \
-        #         "arn:aws:iam::aws:policy/AdministratorAccess"
         # I'm afraid this is really secure
         lambda_privesc = f"""
 import boto3
