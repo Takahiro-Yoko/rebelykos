@@ -17,7 +17,8 @@ class RLModule(Module):
         self.name = "lambda_privesc"
         self.description = ("Elevate privilege by using iam:PassRole, "
                             "lambda:CreateFunction, and "
-                            "lambda:InvokeFunction.")
+                            "lambda:InvokeFunction. "
+                            "(and lambda:DeleteFunction")
         self.author = "Takahiro Yokoyama"
         self.options["user"] = {
             "Description": "User to elevate privilege.",
