@@ -110,7 +110,7 @@ class Modules:
             elif k == res.BAD:
                 print_bad(v)
             elif k == res.RESULT:
-                print(json.dumps(v, indent=4, sort_keys=True))
+                print(json.dumps(v, indent=2, sort_keys=True))
 
     @cmd
     def reload(self, response):
