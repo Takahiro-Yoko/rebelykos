@@ -13,7 +13,7 @@ class RLModule(Module):
         self.author = "Takahiro Yokoyama"
         self.options["name"] = {
             "Description": ("Name of the trail to restore. "
-                            "if not specified, try to disrupt"
+                            "if not specified, try to restore"
                             " all trails user could list."),
             "Required": False,
             "Value": ""

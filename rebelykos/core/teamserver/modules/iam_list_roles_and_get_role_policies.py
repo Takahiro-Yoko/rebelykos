@@ -14,7 +14,7 @@ class RLModule(Module):
         self.author = "Takahiro Yokoyama"
         self.options["rolename"] = {
             "Description": ("Describe role detail and policies"
-                            "attached to specified role."),
+                            "attached to this role."),
             "Required": False,
             "Value": ""
         }

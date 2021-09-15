@@ -11,8 +11,9 @@ class RLModule(Module):
         self.description = "List user policies"
         self.author = "Takahiro Yokoyama"
         self.options["user"] = {
-            "Description": ("User to list attached policies. "
-                            "if not specified, try to get username by "
+            "Description": ("The name (friendly name, not ARN) of the"
+                            " user to list attached policies for. "
+                            "if not specified, try to get user name by "
                             "calling aws sts get-caller-identity with "
                             "current profile."),
             "Required": False,

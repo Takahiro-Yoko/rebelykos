@@ -8,11 +8,12 @@ class RLModule(Module):
     def __init__(self):
         super().__init__()
         self.name = "privesc_by_rollback"
-        self.description = ("Elevate privileges using "
+        self.description = ("Elevate privileges by using "
                             "iam:SetDefaultPolicyVersion")
         self.author = "Takahiro Yokoyama"
         self.options["version"] = {
-            "Description": "To use as a default policy version.",
+            "Description": ("The version of the policy to set as"
+                            " the default (operative) version."),
             "Required": True,
             "Value": ""
         }
