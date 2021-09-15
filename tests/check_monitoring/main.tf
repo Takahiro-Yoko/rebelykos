@@ -4,7 +4,7 @@ resource "aws_iam_user" "rebelykos" {
 
 resource "aws_iam_access_key" "rebelykos" {
   user = aws_iam_user.rebelykos.name
-  pgp_key = data.local_file.pgp_key.content_base64
+  pgp_key = filebase64(var.pgp_key)
 }
 
 resource "aws_iam_user_policy" "rebelykos_ro" {
