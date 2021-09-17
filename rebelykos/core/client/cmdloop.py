@@ -168,10 +168,13 @@ class RLShell:
 
     async def switched_context(self, text):
         for ctx in self.get_context():
-            if ctx.name == "profiles":
+            if self.teamservers.selected and \
+                    self.teamservers.selected.stats.CONNECTED \
+                    and ctx.name == "profiles":
                 res = await self.teamservers.send(ctx=ctx.name,
                                                   cmd="list")
-                ctx.profiles = [row[0] for row in res.result]
+                if res and res.result:
+                    ctx.profiles = [row[0] for row in res.result]
             if text.lower() == ctx.name:
                 if ctx._remote is True:
                     try:
@@ -189,22 +192,22 @@ class RLShell:
 
     async def parse_cmd_line(self, text):
         if not await self.switched_context(text):
+            cmd = shlex.split(text)
+            logging.debug(f"command: {cmd[0]} args: {cmd[1:]} "
+                          f"ctx: {self.current_context.name}")
+            if cmd[0] == "aws":
+                proc = await asyncio.create_subprocess_exec(
+                    *cmd,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE
+                )
+                stdout, stderr = await proc.communicate()
+                if stderr:
+                    print(stderr.decode("utf-8"), end="")
+                else:
+                    print(stdout.decode("utf-8"), end="")
+                return
             try:
-                cmd = shlex.split(text)
-                logging.debug(f"command: {cmd[0]} args: {cmd[1:]} "
-                              f"ctx: {self.current_context.name}")
-                if cmd[0] == "aws":
-                    proc = await asyncio.create_subprocess_exec(
-                        *cmd,
-                        stdout=asyncio.subprocess.PIPE,
-                        stderr=asyncio.subprocess.PIPE
-                    )
-                    stdout, stderr = await proc.communicate()
-                    if stderr:
-                        print(stderr.decode("utf-8"), end="")
-                    else:
-                        print(stdout.decode("utf-8"), end="")
-                    return
                 args = docopt(
                     getattr(
                         self.current_context if hasattr(self.current_context,

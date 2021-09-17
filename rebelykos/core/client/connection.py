@@ -83,6 +83,8 @@ class ClientConnection:
     async def connect(self):
         url = f"{self.url.scheme}://{self.url.hostname}:{self.url.port}"
         logging.debug(f"Connecting to {url}")
+        once_connected = False
+        retry = 0
         while True:
             try:
                 if self.url.scheme == "wss":
@@ -114,6 +116,7 @@ class ClientConnection:
                     ping_timeout=None
                 ) as ws:
                     logging.info(f"Connected to {url}")
+                    once_connected = True
                     self.stats.CONNECTED = True
                     self.ws = ws
                     
@@ -126,6 +129,11 @@ class ClientConnection:
                 logging.error("Error connecting to teamserver"
                               ": connection was refused")
                 self.stats.CONNECTED = False
+
+            retry += 1
+            if not once_connected and retry > 3:
+                logging.info(f"Max retries exceeded with {url}")
+                break
 
             await asyncio.sleep(5)
 

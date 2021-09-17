@@ -63,7 +63,8 @@ class TeamServers:
             conn = ClientConnection(url)
             conn.start()
             self.connections.append(conn)
-            self.selected = self.selected or conn
+            if not self.selected or not self.selected.stats.CONNECTED:
+                self.selected = conn
 
     @cmd
     def disconnect(self, TS: List[str]):
