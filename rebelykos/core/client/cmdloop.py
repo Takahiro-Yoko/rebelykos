@@ -193,6 +193,18 @@ class RLShell:
                 cmd = shlex.split(text)
                 logging.debug(f"command: {cmd[0]} args: {cmd[1:]} "
                               f"ctx: {self.current_context.name}")
+                if cmd[0] == "aws":
+                    proc = await asyncio.create_subprocess_exec(
+                        *cmd,
+                        stdout=asyncio.subprocess.PIPE,
+                        stderr=asyncio.subprocess.PIPE
+                    )
+                    stdout, stderr = await proc.communicate()
+                    if stderr:
+                        print(stderr.decode("utf-8"), end="")
+                    else:
+                        print(stdout.decode("utf-8"), end="")
+                    return
                 args = docopt(
                     getattr(
                         self.current_context if hasattr(self.current_context,
