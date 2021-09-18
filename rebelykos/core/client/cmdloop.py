@@ -66,9 +66,9 @@ class RLCompleter(Completer):
                         if len(cmd_line) < 3:
                             profiles = self.cli_menu.get_context("profiles")
                             for profile in profiles.profiles:
-                                if profile.startswith(word_before_cursor):
+                                if profile[0].startswith(word_before_cursor):
                                     yield Completion(
-                                            profile,
+                                            profile[0],
                                             -len(word_before_cursor)
                                     )
                         return
@@ -89,9 +89,9 @@ class RLCompleter(Completer):
                             and cmd_line[1] == "profile":
                         profiles = self.cli_menu.get_context("profiles")
                         for profile in profiles.profiles:
-                            if profile.startswith(word_before_cursor):
+                            if profile[0].startswith(word_before_cursor):
                                 yield Completion(
-                                        profile,
+                                        profile[0],
                                         -len(word_before_cursor)
                                 )
                         return
@@ -174,7 +174,7 @@ class RLShell:
                 res = await self.teamservers.send(ctx=ctx.name,
                                                   cmd="list")
                 if res and res.result:
-                    ctx.profiles = [row[0] for row in res.result]
+                    ctx.profiles = [row for row in res.result]
             if text.lower() == ctx.name:
                 if ctx._remote is True:
                     try:
@@ -196,8 +196,21 @@ class RLShell:
             logging.debug(f"command: {cmd[0]} args: {cmd[1:]} "
                           f"ctx: {self.current_context.name}")
             if cmd[0] == "aws":
-                proc = await asyncio.create_subprocess_exec(
-                    *cmd,
+                if "--profile" in cmd and cmd[-1] != "--profile":
+                    idx = cmd.index("--profile")
+                    profile = cmd[idx+1]
+                    profiles = self.get_context("profiles")
+                    for p in profiles.profiles:
+                        if profile == p[0]:
+                            cmd = [
+                                f'AWS_ACCESS_KEY_ID={p[1]}',
+                                f'AWS_SECRET_ACCESS_KEY={p[2]}',
+                                f'AWS_DEFAULT_REGION={p[3]}',
+                                f'AWS_SESSION_TOKEN={p[4]}'
+                            ] + cmd[:idx] + cmd[idx+2:]
+                            break
+                proc = await asyncio.create_subprocess_shell(
+                    shlex.join(cmd),
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE
                 )

@@ -1,3 +1,5 @@
+import shlex
+
 from rebelykos.core.teamserver.db import RLDatabase
 from rebelykos.core.utils import CmdError
 
@@ -24,7 +26,7 @@ class Profiles:
         if not self.selected:
             raise CmdError("No profile selected")
         elif name in self.selected:
-            self.selected[name] = value
+            self.selected[name] = shlex.quote(value)
         else:
             raise CmdError(f"Unknown option '{name}'")
 
