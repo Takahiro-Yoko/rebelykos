@@ -26,8 +26,12 @@ class RLModule(Module):
         if result[-1][0] == res.RESULT:
             roles = result.pop()[1]
             if self["rolename"]:
-                roles = [role for role in roles
+                roles = [{"Statement": \
+                    role["AssumeRolePolicyDocument"]["Statement"],
+                          "Arn": role["Arn"]}
+                         for role in roles
                          if role["RoleName"] == self["rolename"]]
+                roles = roles[0] if roles else roles
             else:
                 roles = [role["RoleName"] for role in roles]
             result.append((res.RESULT, roles))
