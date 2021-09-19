@@ -41,18 +41,26 @@ class RLCompleter(Completer):
             pass
         else:
             if len(cmd_line):
+                if cmd_line[0] == "aws":
+                    return
+
+                need_second = len(cmd_line) == 1 or \
+                        (len(cmd_line) == 2 and \
+                         document.current_line[-1] != " ")
+
                 if self.cli_menu.current_context.name == "teamservers":
-                    if cmd_line[0] in \
-                            self.cli_menu.current_context._cmd_registry:
+                    if cmd_line[0] in ("disconnect", "use", "rename") and \
+                            need_second:
                         for conn in self.cli_menu.current_context.connections:
                             if conn.stats.CONNECTED and \
                                     conn.alias.startswith(word_before_cursor):
                                 yield Completion(conn.alias,
                                                  -len(word_before_cursor))
 
-                if self.cli_menu.current_context.name == "profiles":
+                elif self.cli_menu.current_context.name == "profiles":
                     if cmd_line[0] == "set":
-                        if len(cmd_line) < 3:
+                        if self.cli_menu.current_context.selected \
+                                and need_second:
                             for name in ("access_key_id",
                                          "secret_access_key",
                                          "region",
@@ -63,7 +71,7 @@ class RLCompleter(Completer):
                                                      -len(word_before_cursor))
                         return
                     elif cmd_line[0] in ("use", "remove"):
-                        if len(cmd_line) < 3:
+                        if need_second:
                             profiles = self.cli_menu.get_context("profiles")
                             for profile in profiles.profiles:
                                 if profile[0].startswith(word_before_cursor):
@@ -73,36 +81,36 @@ class RLCompleter(Completer):
                                     )
                         return
 
-                if self.cli_menu.teamservers.selected:
+                elif self.cli_menu.current_context.name == "modules":
                     if cmd_line[0] == "use":
-                        for loadable in \
-                                self.cli_menu.current_context.available:
-                            if word_before_cursor in loadable:
-                                try:
-                                    yield Completion(loadable,
-                                                     -len(cmd_line[1]))
-                                except IndexError:
-                                    yield Completion(loadable,
-                                                     -len(word_before_cursor))
+                        if need_second:
+                            for loadable in \
+                                    self.cli_menu.current_context.available:
+                                if loadable.startswith(word_before_cursor):
+                                    try:
+                                        yield Completion(loadable,
+                                                         -len(cmd_line[1]))
+                                    except IndexError:
+                                        yield Completion(
+                                            loadable,
+                                            -len(word_before_cursor)
+                                        )
                         return
-                    elif 2 <= len(cmd_line) <= 3 and cmd_line[0] == "set" \
-                            and cmd_line[1] == "profile":
-                        profiles = self.cli_menu.get_context("profiles")
-                        for profile in profiles.profiles:
-                            if profile[0].startswith(word_before_cursor):
-                                yield Completion(
-                                        profile[0],
-                                        -len(word_before_cursor)
-                                )
-                        return
-
-                if hasattr(self.cli_menu.current_context, "selected") and \
-                        self.cli_menu.current_context.selected:
-                    if cmd_line[0] == "set":
-                        if len(cmd_line) < 3:
-                            for option in self.cli_menu.current_context.selected[
-                                "options"
-                            ]:
+                    elif self.cli_menu.current_context.selected \
+                            and cmd_line[0] == "set":
+                        if len(cmd_line) == 2 and cmd_line[1] == "profile":
+                            profiles = self.cli_menu.get_context("profiles")
+                            for profile in profiles.profiles:
+                                if profile[0].startswith(word_before_cursor):
+                                    yield Completion(
+                                            profile[0],
+                                            -len(word_before_cursor)
+                                    )
+                        elif need_second:
+                            for option in \
+                                    self.cli_menu.current_context.selected[
+                                        "options"
+                                    ]:
                                 if option.lower().startswith(
                                         word_before_cursor
                                 ):
@@ -110,20 +118,22 @@ class RLCompleter(Completer):
                                                      -len(word_before_cursor))
                         return
 
-            if hasattr(self.cli_menu.current_context, "_cmd_registry"):
-                for cmd in self.cli_menu.current_context._cmd_registry:
-                    if cmd.startswith(word_before_cursor):
-                        yield Completion(cmd, -len(word_before_cursor))
+            if len(cmd_line) == 0 or (len(cmd_line) == 1 and \
+                    document.current_line[-1] != " "):
+                if hasattr(self.cli_menu.current_context, "_cmd_registry"):
+                    for cmd in self.cli_menu.current_context._cmd_registry:
+                        if cmd.startswith(word_before_cursor):
+                            yield Completion(cmd, -len(word_before_cursor))
 
-            for ctx in self.cli_menu.get_context():
-                if ctx.name.startswith(word_before_cursor) and \
-                        ctx.name is not self.cli_menu.current_context.name:
-                    yield Completion(ctx.name, -len(word_before_cursor))
+                for ctx in self.cli_menu.get_context():
+                    if ctx.name.startswith(word_before_cursor) and \
+                            ctx.name is not self.cli_menu.current_context.name:
+                        yield Completion(ctx.name, -len(word_before_cursor))
 
-            if self.cli_menu.current_context.name != "main":
-                for cmd in self.cli_menu._cmd_registry:
-                    if cmd.startswith(word_before_cursor):
-                        yield Completion(cmd, -len(word_before_cursor))
+                if self.cli_menu.current_context.name != "main":
+                    for cmd in self.cli_menu._cmd_registry:
+                        if cmd.startswith(word_before_cursor):
+                            yield Completion(cmd, -len(word_before_cursor))
 
 @register_cli_cmds
 class RLShell:
