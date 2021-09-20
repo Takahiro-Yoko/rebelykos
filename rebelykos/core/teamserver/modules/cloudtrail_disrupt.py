@@ -11,7 +11,7 @@ class RLModule(Module):
         self.description = ("Make IncludeGlobalServiceEvents"
                             " and IsMultiRegionTrail False.")
         self.author = "Takahiro Yokoyama"
-        self.options["name"] = {
+        self.options["Name"] = {
             "Description": ("Name of the trail to disrupt. if not specified"
                             ", try to disrupt all trails user could list."),
             "Required": False,
@@ -29,7 +29,7 @@ class RLModule(Module):
 
         result = []
         client = boto3.client("cloudtrail", **self["profile"])
-        trail_name = self["name"]
+        trail_name = self["Name"]
         if trail_name:
             _disrupt(trail_name)
         else:

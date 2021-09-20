@@ -10,7 +10,7 @@ class RLModule(Module):
         self.name = "get_user_policies"
         self.description = "List user policies"
         self.author = "Takahiro Yokoyama"
-        self.options["user"] = {
+        self.options["UserName"] = {
             "Description": ("The name (friendly name, not ARN) of the"
                             " user to list attached policies for. "
                             "if not specified, try to get user name by "
@@ -23,16 +23,16 @@ class RLModule(Module):
     def run(self):
         result = []
         client = boto3.client("iam", **self["profile"])
-        if not self["user"]:
+        if not self["UserName"]:
             tmp_client = boto3.client("sts", **self["profile"])
             result.extend(self._handle_err(tmp_client.get_caller_identity,
                                            key="Arn"))
             if result[-1][0] == res.RESULT:
-                self["user"] = result.pop()[1].split("/")[-1]
+                self["UserName"] = result.pop()[1].split("/")[-1]
             else:
                 return result
         result.extend(self._handle_err(client.list_attached_user_policies,
-                                       UserName=self["user"],
+                                       UserName=self["UserName"],
                                        key="AttachedPolicies"))
         if result[-1][0] == res.RESULT:
             policies = result.pop()[1]

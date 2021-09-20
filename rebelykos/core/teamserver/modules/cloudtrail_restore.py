@@ -11,7 +11,7 @@ class RLModule(Module):
         self.description = ("Make IncludeGlobalServiceEvents"
                             " and IsMultiRegionTrail True.")
         self.author = "Takahiro Yokoyama"
-        self.options["name"] = {
+        self.options["Name"] = {
             "Description": ("Name of the trail to restore. "
                             "if not specified, try to restore"
                             " all trails user could list."),
@@ -31,8 +31,8 @@ class RLModule(Module):
         result = []
         client = boto3.client("cloudtrail", **self["profile"])
 
-        if self["name"]:
-            _restore(self["name"])
+        if self["Name"]:
+            _restore(self["Name"])
         else:
             result.extend(self._handle_err(client.describe_trails,
                                            key="trailList"))

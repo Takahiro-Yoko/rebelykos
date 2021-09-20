@@ -11,13 +11,13 @@ class RLModule(Module):
         self.description = ("Elevate privileges by using "
                             "iam:SetDefaultPolicyVersion")
         self.author = "Takahiro Yokoyama"
-        self.options["version"] = {
+        self.options["VersionId"] = {
             "Description": ("The version of the policy to set as"
                             " the default (operative) version."),
             "Required": True,
             "Value": ""
         }
-        self.options["policyarn"] = {
+        self.options["PolicyArn"] = {
             "Description": "PolicyArn to change the default version.",
             "Required": True,
             "Value": ""
@@ -27,8 +27,8 @@ class RLModule(Module):
         result = []
         client = boto3.client("iam", **self["profile"])
         result.extend(self._handle_err(client.set_default_policy_version,
-                                       VersionId=self["version"],
-                                       PolicyArn=self["policyarn"]))
+                                       VersionId=self["VersionId"],
+                                       PolicyArn=self["PolicyArn"]))
         if result[-1][0] == res.RESULT:
             result.pop()
             result.append((res.GOOD,

@@ -12,7 +12,7 @@ class RLModule(Module):
                             " If specified, Describe the role and get "
                             "policies attached to that role.")
         self.author = "Takahiro Yokoyama"
-        self.options["rolename"] = {
+        self.options["RoleName"] = {
             "Description": ("Describe role detail and policies"
                             "attached to this role."),
             "Required": False,
@@ -25,21 +25,21 @@ class RLModule(Module):
         result.extend(self._handle_err(client.list_roles, key="Roles"))
         if result[-1][0] == res.RESULT:
             roles = result.pop()[1]
-            if self["rolename"]:
+            if self["RoleName"]:
                 roles = [{"Statement": \
                     role["AssumeRolePolicyDocument"]["Statement"],
                           "Arn": role["Arn"]}
                          for role in roles
-                         if role["RoleName"] == self["rolename"]]
+                         if role["RoleName"] == self["RoleName"]]
                 roles = roles[0] if roles else roles
             else:
                 roles = [role["RoleName"] for role in roles]
             result.append((res.RESULT, roles))
-        if self["rolename"]:
+        if self["RoleName"]:
             result.extend(
                 self._handle_err(
                     client.list_attached_role_policies,
-                    RoleName=self["rolename"],
+                    RoleName=self["RoleName"],
                     key="AttachedPolicies"
                 )
             )
