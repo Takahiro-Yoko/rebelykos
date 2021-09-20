@@ -18,7 +18,10 @@ from rebelykos.core.client.cmdloop import RLShell
 
 async def main(args):
     s = RLShell(args)
-    await s.cmdloop()
+    try:
+        await s.cmdloop()
+    except (KeyboardInterrupt, SystemExit):
+        print("Exiting")
 
 def start(args):
     log_level = logging.DEBUG if args['--debug'] else logging.INFO
