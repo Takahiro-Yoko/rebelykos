@@ -12,13 +12,13 @@ class RLModule(Module):
         self.description = ("Run sts assume-role and register this "
                             "new generated credentials to database.")
         self.author = "Takahiro Yokoyama"
-        self.options["rolearn"] = {
+        self.options["RoleArn"] = {
             "Description": ("The Amazon Resource Name (ARN)"
                             " of the role to assume."),
             "Required": True,
             "Value": ""
         }
-        self.options["rolesessionname"] = {
+        self.options["RoleSessionName"] = {
             "Description": ("An identifier for the assumed role session."
                             " if already used this name in profile database"
                             ", then update credentials about that profile."),
@@ -32,15 +32,15 @@ class RLModule(Module):
         result.extend(
             self._handle_err(
                 client.assume_role,
-                RoleArn=self["rolearn"],
-                RoleSessionName=self["rolesessionname"]
+                RoleArn=self["RoleArn"],
+                RoleSessionName=self["RoleSessionName"]
             )
         )
         if result[-1][0] == res.RESULT:
             creds = result.pop()[1]["Credentials"]
             result.append((res.GOOD, "Successfully assume role"))
             new_profile = {
-                "profile": self["rolesessionname"],
+                "profile": self["RoleSessionName"],
                 "access_key_id": creds["AccessKeyId"],
                 "secret_access_key": creds["SecretAccessKey"],
                 "session_token": creds["SessionToken"],
