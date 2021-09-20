@@ -74,6 +74,15 @@ resource "aws_s3_bucket" "rebelykos" {
 POLICY
 }
 
+resource "aws_guardduty_detector" "rebelykos" {
+  enable = true
+  datasources {
+    s3_logs {
+      enable = true
+    }
+  }
+}
+
 resource "aws_accessanalyzer_analyzer" "rebelykos" {
   analyzer_name = "rebelykos"
 }
