@@ -59,4 +59,27 @@ class RLModule(Module):
                             result.append((tmp[0], {
                                 "Statement": tmp[1]["Document"]["Statement"],
                             }))
+        # Inline policies
+        result.extend(
+            self._handle_err(
+                client.list_user_policies,
+                UserName=self["UserName"],
+                key="PolicyNames"
+            )
+        )
+        if result[-1][0] == res.RESULT:
+            inline_policies = result.pop()[1]
+            for p in inline_policies:
+                result.extend(
+                    self._handle_err(
+                        client.get_user_policy,
+                        UserName=self["UserName"],
+                        PolicyName=p,
+                        key="PolicyDocument"
+                    )
+                )
+                if result[-1][0] == res.RESULT:
+                    tmp = result.pop()[1]
+                    result.append((res.RESULT,
+                                   {"Statement": tmp["Statement"]}))
         return result
