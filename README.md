@@ -11,4 +11,4 @@ RebeLykos is currently supported in Linux.
 [Sparc Flow](https://github.com/HackLikeAPornstar)<br />
 [Miguel](https://menendezjaume.com/post/gpg-encrypt-terraform-secrets/)<br />
 [weirdAAL](https://github.com/carnal0wnage/weirdAAL)<br />
-Yushi Sato for teaching me coding.<br />
+Yushi Sato for teaching me programming.<br />
