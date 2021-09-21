@@ -1,4 +1,3 @@
-import aiosqlite
 import sqlite3
 import logging
 import asyncio
