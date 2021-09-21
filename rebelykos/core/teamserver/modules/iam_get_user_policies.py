@@ -60,26 +60,40 @@ class RLModule(Module):
                                 "Statement": tmp[1]["Document"]["Statement"],
                             }))
         # Inline policies
-        result.extend(
-            self._handle_err(
-                client.list_user_policies,
-                UserName=self["UserName"],
-                key="PolicyNames"
-            )
-        )
-        if result[-1][0] == res.RESULT:
-            inline_policies = result.pop()[1]
-            for p in inline_policies:
-                result.extend(
-                    self._handle_err(
-                        client.get_user_policy,
-                        UserName=self["UserName"],
-                        PolicyName=p,
-                        key="PolicyDocument"
-                    )
+        # Need to handle IsTruncated!!!
+        kwargs = {"UserName": self["UserName"]}
+        is_truncated = True
+        marker = ""
+        while is_truncated:
+            if marker:
+                kwargs["Marker"] = marker
+            result.extend(
+                self._handle_err(
+                    client.list_user_policies,
+                    **kwargs,
+                    # for test
+                    # MaxItems=1
                 )
-                if result[-1][0] == res.RESULT:
-                    tmp = result.pop()[1]
-                    result.append((res.RESULT,
-                                   {"Statement": tmp["Statement"]}))
+            )
+            if result[-1][0] == res.RESULT:
+                tmp = result.pop()[1]
+                is_truncated = tmp.get("IsTruncated")
+                if is_truncated:
+                    marker = tmp["Marker"]
+                inline_policies = tmp["PolicyNames"]
+                for p in inline_policies:
+                    result.extend(
+                        self._handle_err(
+                            client.get_user_policy,
+                            UserName=self["UserName"],
+                            PolicyName=p,
+                            key="PolicyDocument"
+                        )
+                    )
+                    if result[-1][0] == res.RESULT:
+                        tmp = result.pop()[1]
+                        result.append((res.RESULT,
+                                       {"Statement": tmp["Statement"]}))
+            else:
+                break
         return result
