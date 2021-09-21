@@ -41,11 +41,30 @@ resource "aws_iam_user_policy" "rebelykos" {
   "Statement": [
     {
       "Action": [
-        "sts:GetCallerIdentity",
         "iam:ListAttachedUserPolicies",
         "iam:ListPolicyVersions",
         "iam:GetPolicyVersion",
         "iam:ListUserPolicies"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_user_policy" "rebelykos2" {
+  name = "rebelykos2"
+  user = aws_iam_user.rebelykos.name
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "sts:GetCallerIdentity"
       ],
       "Effect": "Allow",
       "Resource": "*"
