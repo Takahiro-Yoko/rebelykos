@@ -7,7 +7,7 @@ resource "aws_iam_access_key" "rebelykos" {
   pgp_key = filebase64(var.pgp_key)
 }
 
-resource "aws_iam_user_policy" "rebelykos_ro" {
+resource "aws_iam_user_policy" "rebelykos" {
   name = "rebelykos"
   user = aws_iam_user.rebelykos.name
 
