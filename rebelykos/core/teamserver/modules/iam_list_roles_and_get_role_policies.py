@@ -36,38 +36,104 @@ class RLModule(Module):
                 roles = [role["RoleName"] for role in roles]
             result.append((res.RESULT, roles))
         if self["RoleName"]:
-            result.extend(
-                self._handle_err(
-                    client.list_attached_role_policies,
-                    RoleName=self["RoleName"],
-                    key="AttachedPolicies"
-                )
-            )
-            if result[-1][0] == res.RESULT:
-                policies = result.pop()[1]
-                for policy in policies:
-                    result.extend(
-                        self._handle_err(
-                            client.list_policy_versions,
-                            PolicyArn=policy["PolicyArn"],
-                            key="Versions"
-                        )
+            is_truncated = True
+            marker = ""
+            kwargs = {"RoleName": self["RoleName"]}
+            while is_truncated:
+                if marker:
+                    kwargs["Marker"] = marker
+                result.extend(
+                    self._handle_err(
+                        client.list_attached_role_policies,
+                        **kwargs,
+                        MaxItems=1
+                        # RoleName=self["RoleName"],
+                        # key="AttachedPolicies"
                     )
-                    if result[-1][0] == res.RESULT:
-                        versions = result.pop()[1]
-                        for version in versions:
+                )
+                if result[-1][0] == res.RESULT:
+                    tmp = result.pop()[1]
+                    is_truncated = tmp.get("IsTruncated")
+                    if is_truncated:
+                        marker = tmp["Marker"]
+                    policies = tmp["AttachedPolicies"]
+                    for policy in policies:
+                        _is_truncated = True
+                        _marker = ""
+                        while _is_truncated:
+                            _kwargs = {"PolicyArn": policy["PolicyArn"]}
+                            if _marker:
+                                _kwargs["Marker"] = _marker
                             result.extend(
                                 self._handle_err(
-                                    client.get_policy_version,
-                                    PolicyArn=policy["PolicyArn"],
-                                    VersionId=version["VersionId"],
-                                    key="PolicyVersion"
+                                    client.list_policy_versions,
+                                    **_kwargs,
+                                    MaxItems=1
+                                    # PolicyArn=policy["PolicyArn"],
+                                    # key="Versions"
                                 )
                             )
                             if result[-1][0] == res.RESULT:
-                                tmp = result.pop()
-                                result.append((tmp[0], {
-                                    "Statement": \
-                                        tmp[1]["Document"]["Statement"]
-                                }))
+                                _tmp = result.pop()[1]
+                                _is_truncated = _tmp.get("IsTruncated")
+                                if _is_truncated:
+                                    _marker = _tmp["Marker"]
+                                versions = _tmp["Versions"]
+                                for version in versions:
+                                    result.extend(
+                                        self._handle_err(
+                                            client.get_policy_version,
+                                            PolicyArn=policy["PolicyArn"],
+                                            VersionId=version["VersionId"],
+                                            key="PolicyVersion"
+                                        )
+                                    )
+                                    if result[-1][0] == res.RESULT:
+                                        doc = result.pop()[1]["Document"]
+                                        result.append((
+                                            res.RESULT,
+                                            {"Statement": doc["Statement"]}
+                                        ))
+                            else:
+                                break
+                else:
+                    break
+            # inline policy
+            # Need to handle IsTruncated!!!
+            is_truncated = True
+            marker = ""
+            kwargs = {"RoleName": self["RoleName"]}
+            while is_truncated:
+                if marker:
+                    kwargs["Marker"] = marker
+                result.extend(
+                    self._handle_err(
+                        client.list_role_policies,
+                        **kwargs,
+                        MaxItems=1
+                        # RoleName=self["RoleName"],
+                        # key="PolicyNames"
+                    )
+                )
+                if result[-1][0] == res.RESULT:
+                    tmp = result.pop()[1]
+                    is_truncated = tmp.get("IsTruncated")
+                    if is_truncated:
+                        marker = tmp["Marker"]
+                    inline_policies = tmp["PolicyNames"]
+                    for p in inline_policies:
+                        result.extend(
+                            self._handle_err(
+                                client.get_role_policy,
+                                RoleName=self["RoleName"],
+                                PolicyName=p,
+                                key="PolicyDocument"
+                            )
+                        )
+                        if result[-1][0] == res.RESULT:
+                            tmp = result.pop()[1]
+                            result.append((res.RESULT,
+                                           {"Statement": tmp["Statement"]}))
+                else:
+                    break
         return result
