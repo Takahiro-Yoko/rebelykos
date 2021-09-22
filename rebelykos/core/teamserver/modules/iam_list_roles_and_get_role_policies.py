@@ -46,9 +46,8 @@ class RLModule(Module):
                     self._handle_err(
                         client.list_attached_role_policies,
                         **kwargs,
-                        MaxItems=1
-                        # RoleName=self["RoleName"],
-                        # key="AttachedPolicies"
+                        # for test
+                        # MaxItems=1
                     )
                 )
                 if result[-1][0] == res.RESULT:
@@ -68,9 +67,8 @@ class RLModule(Module):
                                 self._handle_err(
                                     client.list_policy_versions,
                                     **_kwargs,
-                                    MaxItems=1
-                                    # PolicyArn=policy["PolicyArn"],
-                                    # key="Versions"
+                                    # for test
+                                    # MaxItems=1
                                 )
                             )
                             if result[-1][0] == res.RESULT:
@@ -110,9 +108,8 @@ class RLModule(Module):
                     self._handle_err(
                         client.list_role_policies,
                         **kwargs,
-                        MaxItems=1
-                        # RoleName=self["RoleName"],
-                        # key="PolicyNames"
+                        # for test
+                        # MaxItems=1
                     )
                 )
                 if result[-1][0] == res.RESULT:
