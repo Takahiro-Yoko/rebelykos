@@ -57,6 +57,14 @@ class Modules(Loader):
         except KeyError:
             raise CmdError(f"Unknown option '{name}'")
 
+    def unset(self, name: str):
+        if not self.selected:
+            raise CmdError("No module selected")
+        try:
+            self.selected[name] = ""
+        except KeyError:
+            raise CmdError(f"Unknown option '{name}'")
+
     def run(self):
         if not self.selected:
             raise CmdError("No module selected")

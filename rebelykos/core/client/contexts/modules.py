@@ -128,6 +128,17 @@ class Modules:
         Usage: set <name> <value> [-h]
 
         Arguments:
-            name   options name
+            name   option name
             value  option value
+        """
+
+    @cmd
+    def unset(self, name: str, response):
+        """
+        Unset options on the selected module
+
+        Usage: unset <name> [-h]
+
+        Arguments:
+            name    option name
         """
