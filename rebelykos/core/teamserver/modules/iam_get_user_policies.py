@@ -46,9 +46,10 @@ class RLModule(Module):
             if marker:
                 kwargs["Marker"] = marker
             result.extend(self._handle_err(client.list_attached_user_policies,
-                                           **kwargs,
+                                           **kwargs))
+                                           # **kwargs,
                                            # for test
-                                           MaxItems=1))
+                                           # MaxItems=1))
             if result[-1][0] == res.RESULT:
                 tmp = result.pop()[1]
                 result.append((res.GOOD,
@@ -64,9 +65,10 @@ class RLModule(Module):
                             _kwargs["Marker"] = _marker
                         result.extend(
                             self._handle_err(client.list_policy_versions,
-                                             **_kwargs,
+                                             **_kwargs)
+                                             # **_kwargs,
                                              # for test
-                                             MaxItems=1)
+                                             # MaxItems=1)
                         )
                         if result[-1][0] == res.RESULT:
                             _tmp = result.pop()[1]
@@ -99,9 +101,10 @@ class RLModule(Module):
             if marker:
                 kwargs["Marker"] = marker
             result.extend(self._handle_err(client.list_user_policies,
-                                           **kwargs,
+                                           **kwargs))
+                                           # **kwargs,
                                            # for test
-                                           MaxItems=1))
+                                           # MaxItems=1))
             if result[-1][0] == res.RESULT:
                 tmp = result.pop()[1]
                 is_truncated = tmp.get("IsTruncated")
