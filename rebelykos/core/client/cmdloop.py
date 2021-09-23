@@ -13,6 +13,7 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.formatted_text import HTML
 from terminaltables import SingleTable
 
+from rebelykos.core.conf import REGIONS
 from rebelykos.core.utils import print_bad
 from rebelykos.core.client.contexts.teamservers import TeamServers
 from rebelykos.core.client.utils import cmd, register_cli_cmds
@@ -69,6 +70,24 @@ class RLCompleter(Completer):
                                 if name.startswith(word_before_cursor):
                                     yield Completion(name,
                                                      -len(word_before_cursor))
+                        if self.cli_menu.current_context.selected and \
+                                (len(cmd_line) == 2 or \
+                                (len(cmd_line) == 3 and \
+                                document.current_line[-1] != " ")) and \
+                                cmd_line[1] == "region":
+                            for region in REGIONS:
+                                try:
+                                    if region.startswith(cmd_line[2]):
+                                        yield Completion(
+                                            region,
+                                            -len(cmd_line[2])
+                                        )
+                                except IndexError:
+                                    if region.startswith(word_before_cursor):
+                                        yield Completion(
+                                            region,
+                                            -len(word_before_cursor)
+                                        )
                         return
                     elif cmd_line[0] in ("use", "remove"):
                         if need_second:
@@ -111,9 +130,18 @@ class RLCompleter(Completer):
                                     self.cli_menu.current_context.selected[
                                         "options"
                                     ]:
-                                if option.lower().startswith(
-                                        word_before_cursor
-                                ):
+                                if option.startswith(word_before_cursor):
+                                    yield Completion(option,
+                                                     -len(word_before_cursor))
+                        return
+                    elif self.cli_menu.current_context.selected \
+                            and cmd_line[0] == "unset":
+                        if need_second:
+                            for option in \
+                                    self.cli_menu.current_context.selected[
+                                        "options"
+                                    ]:
+                                if option.startswith(word_before_cursor):
                                     yield Completion(option,
                                                      -len(word_before_cursor))
                         return
