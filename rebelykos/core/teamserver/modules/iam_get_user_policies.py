@@ -24,13 +24,21 @@ class RLModule(Module):
         result = []
         client = boto3.client("iam", **self["profile"])
         if not self["UserName"]:
-            tmp_client = boto3.client("sts", **self["profile"])
-            result.extend(self._handle_err(tmp_client.get_caller_identity,
-                                           key="Arn"))
+            result.extend(self._handle_err(client.get_user))
             if result[-1][0] == res.RESULT:
-                self["UserName"] = result.pop()[1].split("/")[-1]
+                self["UserName"] = result.pop()[1]["User"]["UserName"]
             else:
-                return result
+                tmp_client = boto3.client("sts", **self["profile"])
+                result.extend(self._handle_err(tmp_client.get_caller_identity,
+                                               key="Arn"))
+                if result[-1][0] == res.RESULT:
+                    self["UserName"] = result.pop()[1].split("/")[-1]
+                else:
+                    result.append((res.INFO,
+                                   ("Cannot retrieve user name."
+                                    "But if your specify user name, "
+                                    "you might be able to list policies.")))
+                    return result
         result.extend(self._handle_err(client.list_attached_user_policies,
                                        UserName=self["UserName"],
                                        key="AttachedPolicies"))
