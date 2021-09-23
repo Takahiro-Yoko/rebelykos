@@ -43,20 +43,17 @@ class RLModule(Module):
                 if marker:
                     kwargs["Marker"] = marker
                 result.extend(
-                    self._handle_err(
-                        client.list_attached_role_policies,
-                        **kwargs,
-                        # for test
-                        # MaxItems=1
-                    )
+                    self._handle_err(client.list_attached_role_policies,
+                                     **kwargs)
+                                     # for test
+                                     # **kwargs,
+                                     # MaxItems=1)
                 )
                 if result[-1][0] == res.RESULT:
                     tmp = result.pop()[1]
                     is_truncated = tmp.get("IsTruncated")
-                    if is_truncated:
-                        marker = tmp["Marker"]
-                    policies = tmp["AttachedPolicies"]
-                    for policy in policies:
+                    marker = tmp["Marker"] if is_truncated else ""
+                    for policy in tmp["AttachedPolicies"]:
                         _is_truncated = True
                         _marker = ""
                         while _is_truncated:
@@ -64,20 +61,18 @@ class RLModule(Module):
                             if _marker:
                                 _kwargs["Marker"] = _marker
                             result.extend(
-                                self._handle_err(
-                                    client.list_policy_versions,
-                                    **_kwargs,
-                                    # for test
-                                    # MaxItems=1
-                                )
+                                self._handle_err(client.list_policy_versions,
+                                                 **_kwargs)
+                                                 # for test
+                                                 # **_kwargs,
+                                                 # MaxItems=1)
                             )
                             if result[-1][0] == res.RESULT:
                                 _tmp = result.pop()[1]
                                 _is_truncated = _tmp.get("IsTruncated")
                                 if _is_truncated:
                                     _marker = _tmp["Marker"]
-                                versions = _tmp["Versions"]
-                                for version in versions:
+                                for version in _tmp["Versions"]:
                                     result.extend(
                                         self._handle_err(
                                             client.get_policy_version,
@@ -97,40 +92,34 @@ class RLModule(Module):
                 else:
                     break
             # inline policy
-            # Need to handle IsTruncated!!!
             is_truncated = True
             marker = ""
             kwargs = {"RoleName": self["RoleName"]}
             while is_truncated:
                 if marker:
                     kwargs["Marker"] = marker
-                result.extend(
-                    self._handle_err(
-                        client.list_role_policies,
-                        **kwargs,
-                        # for test
-                        # MaxItems=1
-                    )
+                result.extend(self._handle_err(client.list_role_policies,
+                                               **kwargs)
+                                               # for test
+                                               # **kwargs,
+                                               # MaxItems=1)
                 )
                 if result[-1][0] == res.RESULT:
                     tmp = result.pop()[1]
                     is_truncated = tmp.get("IsTruncated")
-                    if is_truncated:
-                        marker = tmp["Marker"]
-                    inline_policies = tmp["PolicyNames"]
-                    for p in inline_policies:
+                    marker = tmp["Marker"] if is_truncated else ""
+                    for p in tmp["PolicyNames"]:
                         result.extend(
-                            self._handle_err(
-                                client.get_role_policy,
-                                RoleName=self["RoleName"],
-                                PolicyName=p,
-                                key="PolicyDocument"
-                            )
+                            self._handle_err(client.get_role_policy,
+                                             RoleName=self["RoleName"],
+                                             PolicyName=p,
+                                             key="PolicyDocument")
                         )
                         if result[-1][0] == res.RESULT:
-                            tmp = result.pop()[1]
-                            result.append((res.RESULT,
-                                           {"Statement": tmp["Statement"]}))
+                            result.append((
+                                res.RESULT,
+                                {"Statement": result.pop()[1]["Statement"]}
+                            ))
                 else:
                     break
         return result
