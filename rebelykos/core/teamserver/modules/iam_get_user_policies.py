@@ -14,8 +14,8 @@ class RLModule(Module):
             "Description": ("The name (friendly name, not ARN) of the"
                             " user to list attached policies for. "
                             "if not specified, try to get user name by "
-                            "calling aws sts get-caller-identity with "
-                            "current profile."),
+                            "calling get-user or get-caller-identity with"
+                            " current profile."),
             "Required": False,
             "Value": ""
         }
@@ -28,8 +28,8 @@ class RLModule(Module):
             if result[-1][0] == res.RESULT:
                 self["UserName"] = result.pop()[1]["User"]["UserName"]
             else:
-                tmp_client = boto3.client("sts", **self["profile"])
-                result.extend(self._handle_err(tmp_client.get_caller_identity,
+                sts_client = boto3.client("sts", **self["profile"])
+                result.extend(self._handle_err(sts_client.get_caller_identity,
                                                key="Arn"))
                 if result[-1][0] == res.RESULT:
                     self["UserName"] = result.pop()[1].split("/")[-1]
@@ -39,69 +39,83 @@ class RLModule(Module):
                                     "But if your specify user name, "
                                     "you might be able to list policies.")))
                     return result
-        result.extend(self._handle_err(client.list_attached_user_policies,
-                                       UserName=self["UserName"],
-                                       key="AttachedPolicies"))
-        if result[-1][0] == res.RESULT:
-            policies = result.pop()[1]
-            result.append((res.GOOD, "You could list attached user policies"))
-            for policy in policies:
-                policy_arn = policy["PolicyArn"]
-                result.extend(self._handle_err(client.list_policy_versions,
-                                               PolicyArn=policy_arn,
-                                               key="Versions"))
-                if result[-1][0] == res.RESULT:
-                    versions = result.pop()[1]
-                    for version in versions:
-                        version_id = version["VersionId"]
+        is_truncated = True
+        marker = ""
+        kwargs = {"UserName": self["UserName"]}
+        while is_truncated:
+            if marker:
+                kwargs["Marker"] = marker
+            result.extend(self._handle_err(client.list_attached_user_policies,
+                                           **kwargs,
+                                           # for test
+                                           MaxItems=1))
+            if result[-1][0] == res.RESULT:
+                tmp = result.pop()[1]
+                result.append((res.GOOD,
+                               "You could list attached user policies"))
+                is_truncated = tmp.get("IsTruncated")
+                marker = tmp["Marker"] if is_truncated else ""
+                for policy in tmp["AttachedPolicies"]:
+                    _is_truncated = True
+                    _marker = ""
+                    while _is_truncated:
+                        _kwargs = {"PolicyArn": policy["PolicyArn"]}
+                        if _marker:
+                            _kwargs["Marker"] = _marker
                         result.extend(
-                            self._handle_err(
-                                client.get_policy_version,
-                                PolicyArn=policy_arn,
-                                VersionId=version_id,
-                                key="PolicyVersion"
-                            )
+                            self._handle_err(client.list_policy_versions,
+                                             **_kwargs,
+                                             # for test
+                                             MaxItems=1)
                         )
                         if result[-1][0] == res.RESULT:
-                            tmp = result.pop()
-                            result.append((tmp[0], {
-                                "Statement": tmp[1]["Document"]["Statement"],
-                            }))
+                            _tmp = result.pop()[1]
+                            _is_truncated = _tmp.get("IsTruncated")
+                            _marker = _tmp["Marker"] if _is_truncated else ""
+                            for version in _tmp["Versions"]:
+                                result.extend(
+                                    self._handle_err(
+                                        client.get_policy_version,
+                                        PolicyArn=policy["PolicyArn"],
+                                        VersionId=version["VersionId"],
+                                        key="PolicyVersion"
+                                    )
+                                )
+                                if result[-1][0] == res.RESULT:
+                                    doc = result.pop()[1]["Document"]
+                                    result.append((
+                                        res.RESULT,
+                                        {"Statement": doc["Statement"]}
+                                    ))
+                        else:
+                            break
+            else:
+                break
         # Inline policies
-        # Need to handle IsTruncated!!!
         kwargs = {"UserName": self["UserName"]}
         is_truncated = True
         marker = ""
         while is_truncated:
             if marker:
                 kwargs["Marker"] = marker
-            result.extend(
-                self._handle_err(
-                    client.list_user_policies,
-                    **kwargs,
-                    # for test
-                    # MaxItems=1
-                )
-            )
+            result.extend(self._handle_err(client.list_user_policies,
+                                           **kwargs,
+                                           # for test
+                                           MaxItems=1))
             if result[-1][0] == res.RESULT:
                 tmp = result.pop()[1]
                 is_truncated = tmp.get("IsTruncated")
-                if is_truncated:
-                    marker = tmp["Marker"]
-                inline_policies = tmp["PolicyNames"]
-                for p in inline_policies:
-                    result.extend(
-                        self._handle_err(
-                            client.get_user_policy,
-                            UserName=self["UserName"],
-                            PolicyName=p,
-                            key="PolicyDocument"
-                        )
-                    )
+                marker = tmp["Marker"] if is_truncated else ""
+                for p in tmp["PolicyNames"]:
+                    result.extend(self._handle_err(client.get_user_policy,
+                                                   UserName=self["UserName"],
+                                                   PolicyName=p,
+                                                   key="PolicyDocument"))
                     if result[-1][0] == res.RESULT:
-                        tmp = result.pop()[1]
-                        result.append((res.RESULT,
-                                       {"Statement": tmp["Statement"]}))
+                        result.append((
+                            res.RESULT,
+                            {"Statement": result.pop()[1]["Statement"]}
+                        ))
             else:
                 break
         return result
