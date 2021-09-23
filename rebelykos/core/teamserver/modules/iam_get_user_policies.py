@@ -47,8 +47,8 @@ class RLModule(Module):
                 kwargs["Marker"] = marker
             result.extend(self._handle_err(client.list_attached_user_policies,
                                            **kwargs))
-                                           # **kwargs,
                                            # for test
+                                           # **kwargs,
                                            # MaxItems=1))
             if result[-1][0] == res.RESULT:
                 tmp = result.pop()[1]
@@ -66,8 +66,8 @@ class RLModule(Module):
                         result.extend(
                             self._handle_err(client.list_policy_versions,
                                              **_kwargs)
-                                             # **_kwargs,
                                              # for test
+                                             # **_kwargs,
                                              # MaxItems=1)
                         )
                         if result[-1][0] == res.RESULT:
@@ -102,8 +102,8 @@ class RLModule(Module):
                 kwargs["Marker"] = marker
             result.extend(self._handle_err(client.list_user_policies,
                                            **kwargs))
-                                           # **kwargs,
                                            # for test
+                                           # **kwargs,
                                            # MaxItems=1))
             if result[-1][0] == res.RESULT:
                 tmp = result.pop()[1]
