@@ -22,19 +22,36 @@ class RLModule(Module):
     def run(self):
         result = []
         client = boto3.client("iam", **self["profile"])
-        result.extend(self._handle_err(client.list_roles, key="Roles"))
-        if result[-1][0] == res.RESULT:
-            roles = result.pop()[1]
-            if self["RoleName"]:
-                roles = [{"Statement": \
-                    role["AssumeRolePolicyDocument"]["Statement"],
-                          "Arn": role["Arn"]}
-                         for role in roles
-                         if role["RoleName"] == self["RoleName"]]
-                roles = roles[0] if roles else roles
+        is_truncated = True
+        marker = ""
+        kwargs = {}
+        roles = []
+        while is_truncated:
+            if marker:
+                kwargs["Marker"] = marker
+            result.extend(self._handle_err(client.list_roles,
+                                           **kwargs))
+                                           # for test
+                                           # **kwargs,
+                                           # MaxItems=1))
+            if result[-1][0] == res.RESULT:
+                tmp = result.pop()[1]
+                is_truncated = tmp.get("IsTruncated")
+                marker = tmp["Marker"] if is_truncated else ""
+                if self["RoleName"]:
+                    match = [{"Statement": \
+                        role["AssumeRolePolicyDocument"]["Statement"],
+                              "Arn": role["Arn"]}
+                             for role in tmp["Roles"]
+                             if role["RoleName"] == self["RoleName"]]
+                    if match:
+                        roles.append(match[0])
+                        break
+                else:
+                    roles.extend([role["RoleName"] for role in tmp["Roles"]])
             else:
-                roles = [role["RoleName"] for role in roles]
-            result.append((res.RESULT, roles))
+                break
+        result.append((res.RESULT, roles))
         if self["RoleName"]:
             is_truncated = True
             marker = ""
