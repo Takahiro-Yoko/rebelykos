@@ -22,28 +22,31 @@ class RLModule(Module):
     def run(self):
 
         def _restore(name):
-            result.extend(self._handle_err(client.update_trail,
-                                           msg="Successfully restore trail!",
-                                           Name=name,
-                                           IncludeGlobalServiceEvents=True,
-                                           IsMultiRegionTrail=True))
+            return self._handle_err(client.update_trail,
+                                    Name=name,
+                                    IncludeGlobalServiceEvents=True,
+                                    IsMultiRegionTrail=True)
 
-        result = []
         client = boto3.client("cloudtrail", **self["profile"])
 
         if self["Name"]:
-            _restore(self["Name"])
+            func_info, result = _restore(self["Name"])
+            yield func_info
+            yield result
         else:
-            result.extend(self._handle_err(client.describe_trails,
-                                           key="trailList"))
-            if result[-1][0] == res.RESULT:
-                trails = result[-1][1]
+            func_info, result = self._handle_err(client.describe_trails)
+            yield func_info
+            if result[0] == res.RESULT:
+                trails = result[1]["trailList"]
+                yield result[0], trails
                 for trail in trails:
-                    _restore(trail["Name"])
+                    func_info, result = _restore(trail["Name"])
+                    yield func_info
+                    yield result
             else:
-                result.append((res.INFO,
-                               ("Lack of right to list trails "
-                                "but might be able to restore trail"
-                                " if you specify trail name")))
-        return result
+                yield (res.INFO,
+                       ("Lack of right to list trails "
+                        "but might be able to restore trail"
+                        " if you specify trail name"))
+        yield res.END, "End"
 

@@ -102,15 +102,15 @@ class Modules:
         Usage:
             run [-h]
         """
-        for (k, v) in response.result:
-            if k == res.GOOD:
-                print_good(v)
-            elif k == res.INFO:
-                print_info(v)
-            elif k == res.BAD:
-                print_bad(v)
-            elif k == res.RESULT:
-                print(json.dumps(v, indent=2, sort_keys=True))
+        k, v = response.result
+        if k == res.GOOD:
+            print_good(v)
+        elif k == res.INFO:
+            print_info(v)
+        elif k == res.BAD:
+            print_bad(v)
+        elif k == res.RESULT:
+            print(json.dumps(v, indent=2, sort_keys=True))
 
     @cmd
     def reload(self, response):

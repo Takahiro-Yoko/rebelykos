@@ -117,6 +117,7 @@ class ClientConnection:
                 ) as ws:
                     logging.info(f"Connected to {url}")
                     once_connected = True
+                    retry = 0
                     self.stats.CONNECTED = True
                     self.ws = ws
                     
@@ -180,6 +181,13 @@ class ClientConnection:
             recv_msg = await self.msg_queue.get()
             self.msg_queue.task_done()
             return ServerResponse(recv_msg, self)
+
+    async def module_run(self, msg):
+        await self.ws.send(json.dumps(msg))
+        while True:
+            recv_msg = await self.msg_queue.get()
+            self.msg_queue.task_done()
+            yield ServerResponse(recv_msg, self)
 
     def __str__(self):
         return f"{self.url.scheme}://{self.url.hostname}:{self.url.port}"

@@ -1,4 +1,5 @@
 import asyncio
+
 from rebelykos.core.events import Events
 from rebelykos.core.teamserver.db import RLDatabase
 from rebelykos.core.teamserver.loader import Loader

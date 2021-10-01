@@ -285,20 +285,40 @@ class RLShell:
                         )
                     )
                 elif self.current_context._remote is True:
-                    res = await self.teamservers.send(
-                        ctx=self.current_context.name,
-                        cmd=cmd[0],
-                        args=args
-                    )
-                    logging.debug(f"response: {res}")
-                    if res.status == "success" and res.result:
-                        if hasattr(self.current_context, cmd[0]):
-                            getattr(self.current_context, cmd[0])(
+                    if self.current_context.name == "modules" \
+                            and cmd[0] == "run":
+                        async for _res in self.teamservers.module_run(
+                                ctx=self.current_context.name,
+                                cmd=cmd[0],
                                 args=args,
-                                response=res
-                            )
-                    elif res.status == "error":
-                        print_bad(res.result)
+                                ):
+                            logging.debug(f"response: {_res}")
+                            if _res.status == "success" and _res.result:
+                                if hasattr(self.current_context, cmd[0]):
+                                    getattr(self.current_context, cmd[0])(
+                                        args=args,
+                                        response=_res
+                                    )
+                            elif _res.status == "error":
+                                print_bad(_res.result)
+                            elif _res.status == "end":
+                                break
+                    else:
+                        res = await self.teamservers.send(
+                            ctx=self.current_context.name,
+                            cmd=cmd[0],
+                            args=args
+                        )
+                        logging.debug(f"response: {res}")
+                        if res.status == "success" and res.result:
+                            if hasattr(self.current_context, cmd[0]):
+                                getattr(self.current_context, cmd[0])(
+                                    args=args,
+                                    response=res
+                                )
+                        elif res.status == "error":
+                            print_bad(res.result)
+
                 if self.current_context.name != "main":
                     await self.update_prompt(self.current_context)
 

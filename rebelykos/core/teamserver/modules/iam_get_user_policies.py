@@ -21,77 +21,85 @@ class RLModule(Module):
         }
 
     def run(self):
-        result = []
         client = boto3.client("iam", **self["profile"])
         if not self["UserName"]:
-            result.extend(self._handle_err(client.get_user))
-            if result[-1][0] == res.RESULT:
-                self["UserName"] = result.pop()[1]["User"]["UserName"]
+            func_info, result = self._handle_err(client.get_user)
+            yield func_info
+            if result[0] == res.RESULT:
+                self["UserName"] = result[1]["User"]["UserName"]
+                yield (res.RESULT, self["UserName"])
             else:
+                yield result
                 sts_client = boto3.client("sts", **self["profile"])
-                result.extend(self._handle_err(sts_client.get_caller_identity,
-                                               key="Arn"))
-                if result[-1][0] == res.RESULT:
-                    self["UserName"] = result.pop()[1].split("/")[-1]
+                func_info, result = self._handle_err(
+                    sts_client.get_caller_identity
+                )
+                yield func_info
+                if result[0] == res.RESULT:
+                    self["UserName"] = result[1]["Arn"].split("/")[-1]
+                    yield (res.RESULT, self["UserName"])
                 else:
-                    result.append((res.INFO,
-                                   ("Cannot retrieve user name."
-                                    "But if your specify user name, "
-                                    "you might be able to list policies.")))
-                    return result
+                    yield (res.INFO,
+                           ("Cannot retrieve user name."
+                            "But if your specify user name, "
+                            "you might be able to list policies."))
+                    return (res.END, "End")
         is_truncated = True
         marker = ""
         kwargs = {"UserName": self["UserName"]}
         while is_truncated:
             if marker:
                 kwargs["Marker"] = marker
-            result.extend(self._handle_err(client.list_attached_user_policies,
-                                           **kwargs))
-                                           # for test
-                                           # **kwargs,
-                                           # MaxItems=1))
-            if result[-1][0] == res.RESULT:
-                tmp = result.pop()[1]
-                result.append((res.GOOD,
-                               "You could list attached user policies"))
-                is_truncated = tmp.get("IsTruncated")
-                marker = tmp["Marker"] if is_truncated else ""
-                for policy in tmp["AttachedPolicies"]:
+            func_info, result = self._handle_err(
+                client.list_attached_user_policies,
+                **kwargs
+            )
+                # for test
+                # **kwargs,
+                # MaxItems=1
+            # )
+            yield func_info
+            if result[0] == res.RESULT:
+                is_truncated = result[1].get("IsTruncated")
+                marker = result[1]["Marker"] if is_truncated else ""
+                policies = result[1]["AttachedPolicies"]
+                for policy in policies:
                     _is_truncated = True
                     _marker = ""
                     while _is_truncated:
                         _kwargs = {"PolicyArn": policy["PolicyArn"]}
                         if _marker:
                             _kwargs["Marker"] = _marker
-                        result.extend(
-                            self._handle_err(client.list_policy_versions,
-                                             **_kwargs)
-                                             # for test
-                                             # **_kwargs,
-                                             # MaxItems=1)
+                        func_info, result = self._handle_err(
+                            client.list_policy_versions,
+                            **_kwargs
                         )
-                        if result[-1][0] == res.RESULT:
-                            _tmp = result.pop()[1]
-                            _is_truncated = _tmp.get("IsTruncated")
-                            _marker = _tmp["Marker"] if _is_truncated else ""
-                            for version in _tmp["Versions"]:
-                                result.extend(
-                                    self._handle_err(
-                                        client.get_policy_version,
-                                        PolicyArn=policy["PolicyArn"],
-                                        VersionId=version["VersionId"],
-                                        key="PolicyVersion"
-                                    )
+                            # for test
+                            # **_kwargs,
+                            # MaxItems=1
+                        # )
+                        yield func_info
+                        if result[0] == res.RESULT:
+                            _is_truncated = result[1].get("IsTruncated")
+                            _marker = result[1]["Marker"] \
+                                    if _is_truncated else ""
+                            versions = result[1]["Versions"]
+                            for version in versions:
+                                func_info, result = self._handle_err(
+                                    client.get_policy_version,
+                                    PolicyArn=policy["PolicyArn"],
+                                    VersionId=version["VersionId"],
                                 )
-                                if result[-1][0] == res.RESULT:
-                                    doc = result.pop()[1]["Document"]
-                                    result.append((
-                                        res.RESULT,
-                                        {"Statement": doc["Statement"]}
-                                    ))
+                                yield func_info
+                                if result[0] == res.RESULT:
+                                    doc = result[1]["PolicyVersion"]["Document"]
+                                    yield (res.RESULT, 
+                                           {"Statement": doc["Statement"]})
                         else:
+                            yield result
                             break
             else:
+                yield result
                 break
         # Inline policies
         kwargs = {"UserName": self["UserName"]}
@@ -100,25 +108,32 @@ class RLModule(Module):
         while is_truncated:
             if marker:
                 kwargs["Marker"] = marker
-            result.extend(self._handle_err(client.list_user_policies,
-                                           **kwargs))
-                                           # for test
-                                           # **kwargs,
-                                           # MaxItems=1))
-            if result[-1][0] == res.RESULT:
-                tmp = result.pop()[1]
-                is_truncated = tmp.get("IsTruncated")
-                marker = tmp["Marker"] if is_truncated else ""
-                for p in tmp["PolicyNames"]:
-                    result.extend(self._handle_err(client.get_user_policy,
-                                                   UserName=self["UserName"],
-                                                   PolicyName=p,
-                                                   key="PolicyDocument"))
-                    if result[-1][0] == res.RESULT:
-                        result.append((
+            func_info, result = self._handle_err(client.list_user_policies,
+                                                 **kwargs)
+                                                 # for test
+                                                 # **kwargs,
+                                                 # MaxItems=1)
+            yield func_info
+            if result[0] == res.RESULT:
+                is_truncated = result[1].get("IsTruncated")
+                marker = result[1]["Marker"] if is_truncated else ""
+                policy_names = result[1]["PolicyNames"]
+                for p in policy_names:
+                    func_info, result = self._handle_err(
+                        client.get_user_policy,
+                        UserName=self["UserName"],
+                        PolicyName=p,
+                    )
+                    yield func_info
+                    if result[0] == res.RESULT:
+                        yield (
                             res.RESULT,
-                            {"Statement": result.pop()[1]["Statement"]}
-                        ))
+                            {"Statement": \
+                                    result[1]["PolicyDocument"]["Statement"]}
+                        )
+                    else:
+                        yield result
             else:
+                yield result
                 break
-        return result
+        yield (res.END, "End")

@@ -27,6 +27,30 @@ class TeamServers:
         for ts in self.connections:
             ts.start()
 
+    async def module_run(self, ctx, cmd, args={}, data={}):
+        if self.selected and self.selected.stats.CONNECTED:
+            normalized_args = {}
+            for k, v in args.items():
+                if k in ["-h", "--help"]:
+                    continue
+                elif k.startswith("<"):
+                    normalized_args[k[1:-1]] = v
+                elif k.startswith("--"):
+                    normalized_args[k[2:]] = v
+
+            msg = {"id": gen_random_string(),
+                   "ctx": ctx,
+                   "cmd": cmd,
+                   "args": normalized_args,
+                   "data": data
+            }
+
+            async for _res in self.selected.module_run(msg):
+                yield _res
+            return
+
+        print_bad("Not connected to a teamserver")
+
     async def send(self, ctx, cmd, args={}, data={}):
         if self.selected and self.selected.stats.CONNECTED:
             normalized_args = {}

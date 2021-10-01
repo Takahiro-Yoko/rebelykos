@@ -24,6 +24,7 @@ import websockets
 from websockets import WebSocketServerProtocol
 
 from rebelykos.core.events import Events
+from rebelykos.core.response import Response as res
 from rebelykos.core.utils import (
     create_self_signed_cert,
     get_cert_fingerprint
@@ -66,8 +67,21 @@ class TeamServer:
         else:
             try:
                 cmd_handler = getattr(ctx, msg["cmd"])
-                result = cmd_handler(**msg["args"])
-                status = "success"
+                if msg["ctx"].lower() == "modules" and msg["cmd"] == "run":
+                    for result in cmd_handler(**msg["args"]):
+                        status = "end" if result[0] == res.END else "success"
+                        await user.send({
+                            "type": "message",
+                            "id": msg["id"],
+                            "ctx": msg["ctx"],
+                            "name": msg["cmd"],
+                            "status": status,
+                            "result": result
+                        })
+                    return
+                else:
+                    result = cmd_handler(**msg["args"])
+                    status = "success"
             except AttributeError:
                 traceback.print_exc()
                 result = (f"Command '{msg['cmd']}' does not exist in context "
@@ -88,6 +102,17 @@ class TeamServer:
             "status": status,
             "result": result
         })
+
+        if msg["ctx"].lower() == "modules" and msg["cmd"] == "run":
+            await user.send({
+                "type": "message",
+                "id": msg["id"],
+                "ctx": msg["ctx"],
+                "name": msg["cmd"],
+                "status": "end",
+                "result": ""
+            })
+
 
     async def update_server_stats(self):
         stats = {**{str(ctx): dict(ctx) for ctx in self.contexts.values()},

@@ -13,20 +13,19 @@ class RLModule(Module):
         self.author = "Takahiro Yokoyama"
 
     def run(self):
-        result = []
-
         client = boto3.client("cloudtrail", **self["profile"])
-        result.extend(self._handle_err(client.describe_trails,
-                                       key="trailList",
-                                       msg="Describing cloudtrails"))
+        func_info, result = self._handle_err(client.describe_trails)
+        yield func_info
+        yield result[0], result[1]["trailList"]
 
         client = boto3.client("guardduty", **self["profile"])
-        result.extend(self._handle_err(client.list_detectors,
-                                       key="DetectorIds",
-                                       msg="Listing guadduty"))
+        func_info, result = self._handle_err(client.list_detectors)
+        yield func_info
+        yield result[0], result[1]["DetectorIds"]
 
         client = boto3.client("accessanalyzer")
-        result.extend(self._handle_err(client.list_analyzers,
-                                       key="analyzers",
-                                       msg="Listing accessanalyzers"))
-        return result
+        func_info, result = self._handle_err(client.list_analyzers)
+        yield func_info
+        yield result[0], result[1]["analyzers"]
+
+        yield res.END, "End"
