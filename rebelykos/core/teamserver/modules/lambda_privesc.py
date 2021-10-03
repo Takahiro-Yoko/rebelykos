@@ -38,7 +38,6 @@ class RLModule(Module):
         }
 
     def run(self):
-        result = []
         client = boto3.client("lambda", **self["profile"])
         user = shlex.quote(self["UserName"])
         policyarn = shlex.quote(self["PolicyArn"])
