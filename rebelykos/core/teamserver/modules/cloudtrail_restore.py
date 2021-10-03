@@ -44,9 +44,9 @@ class RLModule(Module):
                     yield func_info
                     yield result
             else:
+                yield result
                 yield (res.INFO,
                        ("Lack of right to list trails "
                         "but might be able to restore trail"
                         " if you specify trail name"))
         yield res.END, "End"
-

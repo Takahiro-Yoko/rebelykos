@@ -27,18 +27,16 @@ class RLModule(Module):
         }
 
     def run(self):
-        result = []
         client = boto3.client("sts", **self["profile"])
-        result.extend(
-            self._handle_err(
-                client.assume_role,
-                RoleArn=self["RoleArn"],
-                RoleSessionName=self["RoleSessionName"]
-            )
+        func_info, result = self._handle_err(
+            client.assume_role,
+            RoleArn=self["RoleArn"],
+            RoleSessionName=self["RoleSessionName"]
         )
-        if result[-1][0] == res.RESULT:
-            creds = result.pop()[1]["Credentials"]
-            result.append((res.GOOD, "Successfully assume role"))
+        yield func_info
+        if result[0] == res.RESULT:
+            creds = result[1]["Credentials"]
+            yield res.GOOD, "Successfully assume role"
             new_profile = {
                 "profile": self["RoleSessionName"],
                 "access_key_id": creds["AccessKeyId"],
@@ -48,7 +46,8 @@ class RLModule(Module):
             }
             with RLDatabase() as db:
                 db.upsert(new_profile)
-                result.append((res.INFO,
-                               "Add generated credentials information"))
-                result.append((res.RESULT, new_profile))
-        return result
+                yield res.INFO, "Add generated credentials information"
+                yield res.RESULT, new_profile
+        else:
+            yield result
+        yield res.END, "End"
