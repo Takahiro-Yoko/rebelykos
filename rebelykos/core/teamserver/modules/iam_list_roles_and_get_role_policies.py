@@ -8,13 +8,13 @@ class RLModule(Module):
     def __init__(self):
         super().__init__()
         self.name = "list_roles_and_get_role_policies"
-        self.description = ("List all role-names if rolename not specified."
+        self.description = ("List all RoleNames if RoleName not specified."
                             " If specified, Describe the role and get "
                             "policies attached to that role.")
         self.author = "Takahiro Yokoyama"
         self.options["RoleName"] = {
             "Description": ("Describe role detail and policies"
-                            "attached to this role."),
+                            " attached to this role."),
             "Required": False,
             "Value": ""
         }

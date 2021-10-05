@@ -21,12 +21,14 @@ class RLModule(Module):
                             "(and lambda:DeleteFunction")
         self.author = "Takahiro Yokoyama"
         self.options["UserName"] = {
-            "Description": "User to elevate privilege.",
+            "Description": ("The name (friendly name, not ARN) of "
+                            "the IAM user to attach the policy to."),
             "Required": True,
             "Value": ""
         }
         self.options["PolicyArn"] = {
-            "Description": "Policy to attach to user.",
+            "Description": ("The Amazon Resource Name (ARN) of "
+                            "the IAM policy you want to attach."),
             "Required": True,
             "Value": "arn:aws:iam::aws:policy/AdministratorAccess"
         }
