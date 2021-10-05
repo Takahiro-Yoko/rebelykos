@@ -41,6 +41,32 @@ $ python rebelykos.py client
 [0] RL (teamservers) ≫ connect wss://username:strongpassword@127.0.0.1:5000
 ```
 
+# Set profile
+access_key_id, secret_access_key and region are required.
+```
+[1] RL ≫ profiles
+[1] RL (profiles) ≫ use <profile>
+[1] RL (profiles)(<profile>) ≫ set access_key_id <access_key_id>
+[1] RL (profiles)(<profile>) ≫ set secret_access_key <secret_access_key>
+[1] RL (profiles)(<profile>) ≫ set region <region>
+[1] RL (profiles)(<profile>) ≫ update
+```
+
+# Use modules
+```
+[1] RL ≫ modules
+[1] RL (modules) ≫ use <module_name>
+[1] RL (modules)(<module_name>) ≫ set profile <profile>
+[1] RL (modules)(<module_name>) ≫ set <option> <value>
+[1] RL (modules)(<module_name>) ≫ run
+```
+
+# AWS cli
+You can also run AWS cli command with profile either stored in teamserver or local ~/.aws/credentials (if same profile exists both teamserver and local, then one stored in teamserver will be used).
+```
+[1] RL ≫ aws <command> <subcommand> --profile <profile>
+```
+
 # Notes
 RebeLykos is currently supported in Linux.
 
