@@ -2,7 +2,7 @@
 RebeLykos is modern, asynchronous, multiplayer and multiserver AWS attacking tool powered by Python 3 and [SILENTTRINITY](https://github.com/byt3bl33d3r/SILENTTRINITY) which I stole awesome code.
 
 # Setup
-```console
+```bash
 $ git clone https://github.com/Takahiro-Yoko/rebelykos.git
 $ cd rebelykos
 
@@ -16,18 +16,18 @@ $ pip install -r requirements.txt
 
 # Basic Usage
 Start a Teamserver, the default port is 5000:
-```console
+```bash
 $ python rebelykos.py teamserver <teamserver_ip> <teamserver_password>
 ```
 Connect to a teamserver:
 
-<b>Note the wss:// (two s's) in the URL which indicates an encrypted websocket connection (TLS), without this all traffic from the client to the teamserver will be in cleartext!</b>
+**Note the wss:// (two s's) in the URL which indicates an encrypted websocket connection (TLS), without this all traffic from the client to the teamserver will be in cleartext!**
 
-```console
+```bash
 $ python rebelykos.py client wss://<username>:<teamserver_password>@<teamserver_ip>:5000
 ```
 Alternatively, run rebelykos.py without any arguments and connect to a teamserver manually using the CLI menu:
-```console
+```
 $ python rebelykos.py client
 [0] RL ≫ teamservers
 [0] RL (teamservers) ≫ connect -h
