@@ -2,7 +2,7 @@
 RebeLykos is modern, asynchronous, multiplayer and multiserver AWS attacking tool powered by Python 3 and [SILENTTRINITY](https://github.com/byt3bl33d3r/SILENTTRINITY) which I stole awesome code.
 
 # Setup
-```bash
+```powershell
 $ git clone https://github.com/Takahiro-Yoko/rebelykos.git
 $ cd rebelykos
 
