@@ -3,15 +3,26 @@ RebeLykos is modern, asynchronous, multiplayer and multiserver AWS attacking too
 
 # Setup
 ```console
-git clone https://github.com/Takahiro-Yoko/rebelykos.git
-cd rebelykos
+$ git clone https://github.com/Takahiro-Yoko/rebelykos.git
+$ cd rebelykos
 
-apt-get install python3-venv -y (if required)
+$ apt-get install python3-venv -y (if required)
 
-python3 -m venv rebelykos
-source rebelykos/bin/activate
+$ python3 -m venv rebelykos
+$ source rebelykos/bin/activate
 
-pip install -r requirements.txt
+$ pip install -r requirements.txt
+```
+
+# Basic Usage
+Start a Teamserver, the default port is 5000:
+```console
+$ python rebelykos.py teamserver <teamserver_ip> <teamserver_password>
+```
+Connect to a teamserver:
+
+```console
+$ python rebelykos.py client wss://<username>:<teamserver_password>@<teamserver_ip>:5000
 ```
 
 # Notes
