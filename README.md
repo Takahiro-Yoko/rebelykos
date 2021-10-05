@@ -1,5 +1,18 @@
 # RebeLykos
-RebeLykos is a tool I've made to make some experiments with AWS security.
+RebeLykos is modern, asynchronous, multiplayer and multiserver AWS attacking tool powered by Python 3.
+
+# Setup
+```console
+git clone https://github.com/Takahiro-Yoko/rebelykos.git
+cd rebelykos
+
+apt-get install python3-venv -y (if required)
+
+python3 -m venv rebelykos
+source rebelykos/bin/activate
+
+pip install -r requirements.txt
+```
 
 # Notes
 RebeLykos is currently supported in Linux.
