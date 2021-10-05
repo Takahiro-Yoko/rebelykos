@@ -28,17 +28,17 @@ $ python rebelykos.py client wss://<username>:<teamserver_password>@<teamserver_
 ```
 Alternatively, run rebelykos.py without any arguments and connect to a teamserver manually using the CLI menu:
 ```console
-$ python rebelykos.py client<br />
-[0] RL ≫ teamservers<br /> 
-[0] RL (teamservers) ≫ connect -h<br />
-        Connect to the specified teamserver(s)<br />
+$ python rebelykos.py client
+[0] RL ≫ teamservers
+[0] RL (teamservers) ≫ connect -h
+        Connect to the specified teamserver(s)
 
-        Usage: connect [-h] <URL>...<br />
+        Usage: connect [-h] <URL>...
 
-        Arguments:<br />
-            URL teamserver url(s)<br />
+        Arguments:
+            URL teamserver url(s)
 
-[0] RL (teamservers) ≫ connect wss://username:strongpassword@127.0.0.1:5000<br />
+[0] RL (teamservers) ≫ connect wss://username:strongpassword@127.0.0.1:5000
 ```
 
 # Notes
