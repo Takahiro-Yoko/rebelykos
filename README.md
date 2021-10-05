@@ -1,5 +1,5 @@
 # RebeLykos
-RebeLykos is a tool I've made to learn programming and make some experiments with AWS security.
+RebeLykos is a tool I've made to make some experiments with AWS security.
 
 # Notes
 RebeLykos is currently supported in Linux.
