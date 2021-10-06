@@ -61,8 +61,8 @@ access_key_id, secret_access_key and region are required.
 [1] RL (modules)(<module_name>) ≫ run
 ```
 
-# AWS cli
-You can also run AWS cli command with profile either stored in teamserver or local ~/.aws/credentials (if same profile exists both teamserver and local, then one stored in teamserver will be used).
+# AWS CLI
+You can also run AWS CLI command with profile either stored in teamserver or local ~/.aws/credentials (if same profile exists both teamserver and local, then one stored in teamserver will be used).
 ```
 [1] RL ≫ aws <command> <subcommand> --profile <profile>
 ```
