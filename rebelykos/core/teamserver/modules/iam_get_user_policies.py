@@ -27,7 +27,7 @@ class RLModule(Module):
             yield func_info
             if result[0] == res.RESULT:
                 self["UserName"] = result[1]["User"]["UserName"]
-                yield (res.RESULT, self["UserName"])
+                yield res.RESULT, self["UserName"]
             else:
                 yield result
                 sts_client = boto3.client("sts", **self["profile"])
@@ -37,14 +37,14 @@ class RLModule(Module):
                 yield func_info
                 if result[0] == res.RESULT:
                     self["UserName"] = result[1]["Arn"].split("/")[-1]
-                    yield (res.RESULT, self["UserName"])
+                    yield res.RESULT, self["UserName"]
                 else:
                     yield result
                     yield (res.INFO,
-                           ("Cannot retrieve user name."
+                           ("Cannot retrieve user name. "
                             "But if your specify user name, "
                             "you might be able to list policies."))
-                    return (res.END, "End")
+                    yield res.END, "End"
         is_truncated = True
         marker = ""
         kwargs = {"UserName": self["UserName"]}
@@ -93,7 +93,8 @@ class RLModule(Module):
                                 )
                                 yield func_info
                                 if result[0] == res.RESULT:
-                                    doc = result[1]["PolicyVersion"]["Document"]
+                                    policy_ver = result[1]["PolicyVersion"]
+                                    doc = policy_ver["Document"]
                                     yield (res.RESULT, 
                                            {"Statement": doc["Statement"]})
                         else:
