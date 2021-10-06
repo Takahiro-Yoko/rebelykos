@@ -45,6 +45,7 @@ class RLModule(Module):
                                 {"Statement": policy_doc["Statement"],
                                  "Arn": role["Arn"]}
                             )
+                            is_truncated = False
                             break
                 else:
                     for role in result[1]["Roles"]:
