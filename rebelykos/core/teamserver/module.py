@@ -28,6 +28,27 @@ class Module:
         else:
             return func_info, (res.RESULT, func_result)
 
+    def _handle_is_truncated(self, func, **kwargs):
+        is_truncated = True
+        marker = ""
+        while is_truncated:
+            if marker:
+                kwargs["Marker"] = marker
+            elif "Marker" in kwargs:
+                del kwargs["Marker"]
+            func_info, result = self._handle_err(
+                func,
+                **kwargs
+            )
+            yield func_info
+            if result[0] == res.RESULT:
+                is_truncated = result[1].get("IsTruncated")
+                marker = result[1]["Marker"] if is_truncated else ""
+                yield result
+            else:
+                yield result
+                break
+
     def __getitem__(self, key):
         for k, v in self.options.items():
             if k.lower() == key.lower():
