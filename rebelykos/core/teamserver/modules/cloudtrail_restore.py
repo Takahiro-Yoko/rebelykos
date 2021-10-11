@@ -7,7 +7,7 @@ from rebelykos.core.teamserver.module import Module
 class RLModule(Module):
     def __init__(self):
         super().__init__()
-        self.name = "restore_cloudtrail"
+        self.name = "cloudtrail_restore"
         self.description = ("Make IncludeGlobalServiceEvents"
                             " and IsMultiRegionTrail True.")
         self.author = "Takahiro Yokoyama"
@@ -48,5 +48,5 @@ class RLModule(Module):
                 yield (res.INFO,
                        ("Lack of right to list trails "
                         "but might be able to restore trail"
-                        " if you specify trail name"))
+                        " if you specify trail name."))
         yield res.END, "End"
