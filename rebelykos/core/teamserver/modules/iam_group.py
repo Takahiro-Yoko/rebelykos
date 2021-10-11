@@ -20,16 +20,16 @@ class RLModule(Module):
         client = boto3.client("iam", **self["profile"])
         if self["GroupName"]:
             group = boto3.resource("iam").Group(self["GroupName"])
+            yield res.INFO, "Showing group arn."
             yield res.RESULT, group.arn
 
+            yield res.INFO, "Listing attached policies."
             for policy in group.attached_policies.all():
                 for result in self._handle_is_truncated(
                         client.list_policy_versions,
                         PolicyArn=policy.arn
                         ):
-                    if result[0] == res.INFO:
-                        yield result
-                    elif result[0] == res.RESULT:
+                    if result[0] == res.RESULT:
                         versions = result[1]["Versions"]
                         for version in versions:
                             func_info, result = self._handle_err(
@@ -46,17 +46,27 @@ class RLModule(Module):
                                 )
                             else:
                                 yield result
+                    else:
+                        yield result
 
-            # for policy in group.policies.all():
-            #     yield from self._handle_is_truncated(client, policy.arn)
+            yield res.INFO, "Listing inline policies."
+            for policy in group.policies.all():
+                yield (
+                    res.RESULT,
+                    {"PolicyName": policy.policy_name,
+                     "Statement": policy.policy_document["Statement"]}
+                )
 
-            # for user in group.users.all():
-            #     yield from self._handle_is_truncated(client, policy.arn)
+            yield (
+                res.INFO,
+                ("Listing users belonging to"
+                 f" group {self['GroupName']}")
+            )
+            for user in group.users.all():
+                yield res.RESULT, user.name
         else:
             for result in self._handle_is_truncated(client.list_groups):
-                if result[0] == res.INFO:
-                    yield result
-                elif result[0] == res.RESULT:
+                if result[0] == res.RESULT:
                     groups = result[1]["Groups"]
                     for group in groups:
                         yield res.RESULT, group["GroupName"]
