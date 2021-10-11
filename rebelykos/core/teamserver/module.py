@@ -49,6 +49,38 @@ class Module:
                 yield result
                 break
 
+    def _iam_attached_policies(self, client, policies):
+        for policy in policies:
+            for result in self._handle_is_truncated(
+                    client.list_policy_versions,
+                    PolicyArn=policy.arn
+                    ):
+                if result[0] == res.RESULT:
+                    versions = result[1]["Versions"]
+                    for version in versions:
+                        func_info, result = self._handle_err(
+                            client.get_policy_version,
+                            PolicyArn=policy.arn,
+                            VersionId=version["VersionId"]
+                        )
+                        yield func_info
+                        if result[0] == res.RESULT:
+                            doc = result[1]["PolicyVersion"]["Document"]
+                            yield (
+                                res.RESULT,
+                                {"Statement": doc["Statement"]}
+                            )
+                        else:
+                            yield result
+                else:
+                    yield result
+
+    def _iam_inline_policies(self, policies):
+        for policy in policies:
+            yield (res.RESULT,
+                   {"PolicyName": policy.policy_name,
+                    "Statement": policy.policy_document["Statement"]})
+
     def __getitem__(self, key):
         for k, v in self.options.items():
             if k.lower() == key.lower():

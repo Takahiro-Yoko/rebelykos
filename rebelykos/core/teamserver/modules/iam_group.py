@@ -8,7 +8,8 @@ class RLModule(Module):
     def __init__(self):
         super().__init__()
         self.name = "group_info"
-        self.description = "List groups and group policies"
+        self.description = ("List groups, group policies and"
+                            " users belonging to group.")
         self.author = "Takahiro Yokoyama"
         self.options["GroupName"] = {
             "Description": "The Group's name identifier.",
@@ -24,38 +25,13 @@ class RLModule(Module):
             yield res.RESULT, group.arn
 
             yield res.INFO, "Listing attached policies."
-            for policy in group.attached_policies.all():
-                for result in self._handle_is_truncated(
-                        client.list_policy_versions,
-                        PolicyArn=policy.arn
-                        ):
-                    if result[0] == res.RESULT:
-                        versions = result[1]["Versions"]
-                        for version in versions:
-                            func_info, result = self._handle_err(
-                                client.get_policy_version,
-                                PolicyArn=policy.arn,
-                                VersionId=version["VersionId"]
-                            )
-                            yield func_info
-                            if result[0] == res.RESULT:
-                                doc = result[1]["PolicyVersion"]["Document"]
-                                yield (
-                                    res.RESULT,
-                                    {"Statement": doc["Statement"]}
-                                )
-                            else:
-                                yield result
-                    else:
-                        yield result
+            yield from self._iam_attached_policies(
+                client,
+                group.attached_policies.all()
+            )
 
             yield res.INFO, "Listing inline policies."
-            for policy in group.policies.all():
-                yield (
-                    res.RESULT,
-                    {"PolicyName": policy.policy_name,
-                     "Statement": policy.policy_document["Statement"]}
-                )
+            yield from self._iam_inline_policies(group.policies.all())
 
             yield (
                 res.INFO,
