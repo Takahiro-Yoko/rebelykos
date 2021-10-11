@@ -7,7 +7,7 @@ from rebelykos.core.teamserver.module import Module
 class RLModule(Module):
     def __init__(self):
         super().__init__()
-        self.name = "disrupt_cloudtrail"
+        self.name = "cloudtrail_disrupt"
         self.description = ("Make IncludeGlobalServiceEvents"
                             " and IsMultiRegionTrail False.")
         self.author = "Takahiro Yokoyama"
