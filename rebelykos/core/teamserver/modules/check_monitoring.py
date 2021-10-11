@@ -16,16 +16,25 @@ class RLModule(Module):
         client = boto3.client("cloudtrail", **self["profile"])
         func_info, result = self._handle_err(client.describe_trails)
         yield func_info
-        yield result[0], result[1]["trailList"]
+        if result[0] == res.RESULT:
+            yield result[0], result[1]["trailList"]
+        else:
+            yield result
 
         client = boto3.client("guardduty", **self["profile"])
         func_info, result = self._handle_err(client.list_detectors)
         yield func_info
-        yield result[0], result[1]["DetectorIds"]
+        if result[0] == res.RESULT:
+            yield result[0], result[1]["DetectorIds"]
+        else:
+            yield result
 
         client = boto3.client("accessanalyzer")
         func_info, result = self._handle_err(client.list_analyzers)
         yield func_info
-        yield result[0], result[1]["analyzers"]
+        if result[0] == res.RESULT:
+            yield result[0], result[1]["analyzers"]
+        else:
+            yield result
 
         yield res.END, "End"
