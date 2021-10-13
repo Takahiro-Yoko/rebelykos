@@ -50,4 +50,5 @@ class RLModule(Module):
                 yield res.RESULT, new_profile
         else:
             yield result
+
         yield res.END, "End"

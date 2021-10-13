@@ -47,4 +47,5 @@ class RLModule(Module):
                        ("Lack of right to list trails "
                         "but might be able to disrupt trail"
                         " if you specify trail name."))
+
         yield res.END, "End"

@@ -48,4 +48,5 @@ class RLModule(Module):
                         yield res.RESULT, group["GroupName"]
                 else:
                     yield result
+
         yield res.END, "End"
