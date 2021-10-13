@@ -1,4 +1,5 @@
 import json
+
 from terminaltables import SingleTable
 
 from rebelykos.core.response import Response as res
