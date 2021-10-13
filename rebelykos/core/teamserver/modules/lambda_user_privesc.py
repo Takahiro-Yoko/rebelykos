@@ -56,4 +56,5 @@ def lambda_handler(event, context):
                                            self["RoleArn"],
                                            client):
             yield result
+
         yield res.END, "End"
