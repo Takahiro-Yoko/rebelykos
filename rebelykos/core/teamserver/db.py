@@ -1,7 +1,5 @@
 import sqlite3
 import logging
-import asyncio
-import uuid
 
 from rebelykos.core.utils import get_path_in_data_folder
 
