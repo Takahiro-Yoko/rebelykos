@@ -38,7 +38,7 @@ $ python rebelykos.py client
         Arguments:
             URL teamserver url(s)
 
-[0] RL (teamservers) ≫ connect wss://username:strongpassword@127.0.0.1:5000
+[0] RL (teamservers) ≫ connect wss://<username>:<teamserver_password>@<teamserver_ip>:5000
 ```
 
 # Set profile
