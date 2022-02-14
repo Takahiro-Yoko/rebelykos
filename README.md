@@ -1,5 +1,5 @@
 # RebeLykos
-RebeLykos is modern, asynchronous, multiplayer and multiserver AWS attacking tool powered by Python 3 and [SILENTTRINITY](https://github.com/byt3bl33d3r/SILENTTRINITY) which I stole awesome code.
+RebeLykos is modern, asynchronous, multiplayer and multiserver AWS attacking tool powered by Python3 and [SILENTTRINITY](https://github.com/byt3bl33d3r/SILENTTRINITY) which I stole awesome code.
 
 # Setup
 ```bash
@@ -62,7 +62,7 @@ access_key_id, secret_access_key and region are required.
 ```
 
 # AWS CLI
-You can also run AWS CLI command with profile either stored in teamserver or local ~/.aws/credentials (if same profile exists both teamserver and local, then one stored in teamserver will be used).
+You can also run AWS CLI command with profile either stored in teamserver or local ~/.aws/credentials (if same profile exists in both teamserver and local, then one stored in teamserver will be used).
 ```
 [1] RL ≫ aws <command> <subcommand> --profile <profile>
 ```
