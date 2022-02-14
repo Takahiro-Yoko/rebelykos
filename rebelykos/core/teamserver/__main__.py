@@ -55,7 +55,7 @@ class TeamServer:
     async def process_client_msg(self, user, path, data):
         msg = json.loads(data)
         logging.debug(f"Received message from {user.name}@{user.ip} "
-                      f"path:{path} msg: {msg}")
+                      f"path:{path} msg:{msg}")
         status = "error"
 
         try:
