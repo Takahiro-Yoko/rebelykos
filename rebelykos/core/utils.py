@@ -21,8 +21,8 @@ class CmdError(Exception):
         super().__init__(msg)
 
 def gen_random_string(length: int = 10):
-    return "".join([random.choice(string.ascii_letters + string.digits)
-                    for _ in range(length)])
+    return "".join(random.choice(string.ascii_letters + string.digits)
+                   for _ in range(length))
 
 def get_data_folder():
     return os.path.expanduser("~/.rl")
